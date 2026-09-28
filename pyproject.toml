@@ -1,0 +1,16 @@
+[project]
+name = "mulewatch"
+version = "0.1.0"
+description = "AI investigation copilot for money-mule alerts"
+requires-python = ">=3.14"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py314"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
