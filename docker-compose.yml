@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: mulewatch
+      POSTGRES_USER: mulewatch
+      POSTGRES_PASSWORD: mulewatch_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - mulewatch_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mulewatch -d mulewatch"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mulewatch_postgres_data:
