@@ -8,11 +8,11 @@ import db.queries as queries
 
 @pytest.fixture
 def seeded_database(monkeypatch):
-    write_url = "postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch"
+    write_url = "postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch_test"
 
     read_url = (
         "postgresql://mulewatch_readonly:"
-        "mulewatch_readonly_dev@localhost:5432/mulewatch"
+        "mulewatch_readonly_dev@localhost:5432/mulewatch_test"
     )
 
     with psycopg.connect(write_url) as connection:
