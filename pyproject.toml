@@ -7,6 +7,12 @@ dependencies = [
     "faker",
     "pandas",
     "psycopg[binary]",
+    "scikit-learn",
+    "xgboost",
+    "mlflow",
+    "fastapi",
+    "uvicorn",
+    "httpx",
 ]
 
 [tool.pytest.ini_options]

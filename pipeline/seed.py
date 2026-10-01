@@ -22,26 +22,49 @@ fake = Faker("en_GB")
 
 
 def load_paysim_sample(path: Path, sample_size: int) -> pd.DataFrame:
-    chunks = []
-    rows_loaded = 0
+    chunk_sizes = [
+        len(chunk)
+        for chunk in pd.read_csv(
+            path,
+            usecols=["step"],
+            chunksize=CHUNK_SIZE,
+        )
+    ]
 
-    for chunk in pd.read_csv(path, chunksize=CHUNK_SIZE):
-        rows_needed = sample_size - rows_loaded
+    total_rows = sum(chunk_sizes)
 
-        if rows_needed <= 0:
-            break
-
-        selected = chunk.head(rows_needed)
-        chunks.append(selected)
-        rows_loaded += len(selected)
-
-    if rows_loaded < sample_size:
+    if sample_size > total_rows:
         raise ValueError(
             f"Requested {sample_size:,} rows, "
-            f"but dataset only contained {rows_loaded:,} rows."
+            f"but dataset only contained {total_rows:,} rows."
         )
 
-    return pd.concat(chunks, ignore_index=True)
+    sampled_chunks = []
+    rows_sampled = 0
+
+    for chunk_number, chunk in enumerate(pd.read_csv(path, chunksize=CHUNK_SIZE)):
+        if chunk_number == len(chunk_sizes) - 1:
+            rows_to_sample = sample_size - rows_sampled
+        else:
+            rows_to_sample = round(sample_size * chunk_sizes[chunk_number] / total_rows)
+
+        sampled = chunk.sample(
+            n=rows_to_sample,
+            random_state=RANDOM_SEED + chunk_number,
+        )
+
+        sampled_chunks.append(sampled)
+        rows_sampled += len(sampled)
+
+    sample = pd.concat(
+        sampled_chunks,
+        ignore_index=True,
+    )
+
+    return sample.sort_values(
+        "step",
+        kind="stable",
+    ).reset_index(drop=True)
 
 
 def get_unique_account_ids(transactions: pd.DataFrame) -> list[str]:

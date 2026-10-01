@@ -35,7 +35,7 @@ jobs:
       - name: Install project dependencies and development tools
         run: |
           python -m pip install --upgrade pip
-          python -m pip install faker pandas "psycopg[binary]" pytest ruff
+          python -m pip install faker pandas "psycopg[binary]" scikit-learn xgboost mlflow fastapi httpx pytest ruff
 
       - name: Create test database schema and read-only role
         env:
