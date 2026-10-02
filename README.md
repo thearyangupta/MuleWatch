@@ -1,240 +1,195 @@
 # MuleWatch
 
-MuleWatch is an AI investigation copilot for money-mule alerts.
+**AI investigation copilot for money-mule alerts.**
 
-Instead of only asking whether an individual transaction is risky, MuleWatch starts from a flagged account and builds the evidence needed for an analyst to investigate it. The system is designed to support a human analyst: it recommends and explains, but does not take autonomous action.
+![CI](https://github.com/thearyangupta/mulewatch/actions/workflows/ci.yml/badge.svg)
+![Python](https://img.shields.io/badge/python-3.14-blue)
+![Data](https://img.shields.io/badge/data-synthetic%20only-lightgrey)
 
-## Current v0
+Instead of only asking whether an individual transaction is risky, MuleWatch starts from a **flagged account** and builds the evidence an analyst needs to investigate it. It scores accounts, explains every score, and produces a daily alert queue sized to analyst capacity.
 
-Week 1 establishes the data, feature, scoring, and alert foundations:
+MuleWatch is designed to **support** a financial-crime analyst. It recommends and explains; it never takes action on an account by itself.
 
-1. PaySim transactions and Faker-generated customer data are stored in PostgreSQL.
-2. Account-level money-mule features are calculated from transaction behaviour.
-3. An XGBoost account-level model produces a risk score.
-4. MLflow tracks the registered model version.
-5. `POST /score` returns the account risk score, model version, and top three SHAP reasons.
-6. Accounts are ranked by risk score and converted into a daily alert queue using an operational alert budget.
-7. Alerts are idempotent per account and date.
+> ⚠️ **Synthetic data only.** MuleWatch uses the public PaySim synthetic transaction dataset and Faker-generated customer profiles. No real customer data is used.
 
-Current flow:
+---
 
-```text
-PaySim + Faker
-      |
-      v
- PostgreSQL
-      |
-      v
-Account Features
-      |
-      v
-XGBoost + MLflow
-      |
-      +------> FastAPI POST /score
-      |
-      v
-Daily Alert Queue
+## Features
+
+- **Account-level mule features** computed per account per day: pass-through ratio, dwell time, fan-in / fan-out, transfer-to-cash-out chains, velocity
+- **XGBoost risk model**: class-weighted, trained on a time-based split, evaluated with PR-AUC
+- **Model versioning with MLflow**: every score carries the version of the model that produced it
+- **Explainable scoring API**: `POST /score` returns a risk score, the model version and the top three SHAP reasons
+- **Daily alert queue**: accounts ranked by risk and capped by an operational analyst alert budget instead of a fixed 0.5 threshold
+- **Idempotent alerts**: re-running alert generation never creates duplicates
+- **Least-privilege database access**: the API connects through a read-only PostgreSQL role
+- **CI**: GitHub Actions runs Ruff and pytest against a real PostgreSQL 17 service
+
+---
+
+## Architecture
+
+```mermaid
+flowchart TD
+    A[PaySim transactions + Faker customers] --> B[(PostgreSQL 17)]
+    B --> C[Account-day mule features]
+    C --> D[XGBoost model<br/>tracked + registered in MLflow]
+    D --> E[FastAPI · POST /score<br/>risk score · model version · top-3 SHAP reasons]
+    D --> F[Daily alert queue<br/>ranked by risk · capped by alert budget]
+    F --> B
 ```
 
-## Run
+---
 
-### Requirements
+## Money-mule features
 
-- Python 3.14+
-- Docker with Docker Compose
-- PaySim CSV at:
+| Feature | What it measures | Why it can signal mule activity |
+|---|---|---|
+| `pass_through_ratio` | Money out ÷ money in for the day | Mules forward almost everything they receive (≈ 1.0) |
+| `median_dwell_minutes` | Median time from an inbound payment to the next outbound one | Mules move money on within minutes |
+| `fan_in` / `fan_out` | Distinct senders / distinct receivers | Many unrelated senders paying into one account |
+| `transfer_cashout_chains` | Received TRANSFER followed by a sent CASH_OUT | A classic laundering path |
+| `velocity_ratio` | Today's transaction count ÷ historical daily average | Sudden activity spikes on a quiet account |
 
-```text
-data/raw/PS_20174392719_1491204439457_log.csv
-```
+More detail: [`docs/FEATURES.md`](docs/FEATURES.md)
 
-### Install dependencies
+---
 
-Create and activate a virtual environment, then install the project dependencies:
+## Model
 
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
+| | |
+|---|---|
+| Algorithm | XGBoost (`max_depth=3`, `n_estimators=200`, `scale_pos_weight` = negatives ÷ positives) |
+| Validation | Time-based split: earliest 80% of dates for training, latest 20% for testing |
+| Metric | PR-AUC (average precision), because mule accounts are rare and accuracy is misleading |
+| Test PR-AUC | 0.XX |
+| Tracking | MLflow experiment `mulewatch-account-scoring` with a registered model |
 
-pip install faker pandas "psycopg[binary]" scikit-learn xgboost mlflow fastapi uvicorn httpx
-```
-
-### Start PostgreSQL
-
-```powershell
-docker compose up -d postgres
-```
-
-Create the database schema and read-only database role:
-
-```powershell
-Get-Content db\schema.sql | docker compose exec -T postgres psql -U mulewatch -d mulewatch
-
-Get-Content db\roles.sql | docker compose exec -T postgres psql -U mulewatch -d mulewatch
-```
-
-### Seed the development database
-
-```powershell
-python pipeline\seed.py
-```
-
-The development seed samples 200,000 PaySim transactions and generates synthetic customer profiles using Faker.
-
-### Train and register the scoring model
-
-```powershell
-python scoring\train.py
-```
-
-Training creates the local MLflow tracking state and registered account-scoring model used by the API.
-
-### Start PostgreSQL and the API
-
-```powershell
-docker compose up -d --build
-```
-
-Check both services:
-
-```powershell
-docker compose ps
-```
-
-The API is available at:
-
-```text
-http://127.0.0.1:8000
-```
-
-### Score an account
-
-Example PowerShell request:
-
-```powershell
-$body = @{
-    account_id = "C1436118706"
-} | ConvertTo-Json
-
-Invoke-RestMethod `
-    -Method Post `
-    -Uri "http://127.0.0.1:8000/score" `
-    -ContentType "application/json" `
-    -Body $body
-```
-
-The response contains:
-
-- `risk_score`
-- `model_version`
-- top three SHAP `reasons`
+---
 
 ## Daily alerts
 
-The daily alert pipeline scores active accounts for a date, ranks them by model risk score, and selects up to the configured analyst alert budget.
+Each day, active accounts are scored and ranked, and the top accounts are selected up to the configured analyst alert budget. The effective threshold is the score of the lowest-ranked account that fits in the budget, so the queue matches what analysts can actually review.
 
-The alert threshold is operational rather than a fixed probability such as `0.5`. It is determined by the score of the lowest-ranked account selected within that day's available alert capacity.
+Each alert stores the account ID, alert date, risk score, model version, SHAP reasons and status (`NEW`). A uniqueness constraint on `(account_id, alert_date)` with conflict-safe inserts makes alert generation idempotent.
 
-Each alert stores:
+---
 
-- account ID
-- alert date
-- risk score
-- model version
-- SHAP reasons
-- status
+## Getting started
 
-New alerts begin with:
+### Prerequisites
 
-```text
-NEW
+- Python 3.14+
+- Docker with Docker Compose
+- The PaySim dataset from Kaggle ([Synthetic Financial Datasets For Fraud Detection](https://www.kaggle.com/datasets/ealaxi/paysim1)), saved as:
+  ```text
+  data/raw/PS_20174392719_1491204439457_log.csv
+  ```
+
+### 1. Install
+
+```bash
+python -m venv .venv
+source .venv/bin/activate          # Windows: .venv\Scripts\Activate.ps1
+pip install -e .
 ```
 
-A database uniqueness constraint on:
+### 2. Start PostgreSQL and apply the schema
 
-```text
-(account_id, alert_date)
+```bash
+docker compose up -d postgres
+docker compose exec -T postgres psql -U mulewatch -d mulewatch < db/schema.sql
+docker compose exec -T postgres psql -U mulewatch -d mulewatch < db/roles.sql
 ```
 
-together with conflict-safe insertion makes repeated alert generation idempotent.
+<details>
+<summary>Windows (PowerShell)</summary>
 
-## Example alerts
+```powershell
+docker compose up -d postgres
+Get-Content db\schema.sql | docker compose exec -T postgres psql -U mulewatch -d mulewatch
+Get-Content db\roles.sql  | docker compose exec -T postgres psql -U mulewatch -d mulewatch
+```
+</details>
 
-On the seeded development sample for `2026-01-31`, 26 active accounts were scored.
+### 3. Seed the database and train the model
 
-The configured daily alert budget was 50, so all 26 accounts were selected.
-
-### C1500556384
-
-Risk score:
-
-```text
-0.6871
+```bash
+python pipeline/seed.py      # samples 200,000 PaySim transactions + generates customers
+python scoring/train.py      # trains XGBoost, logs and registers the model in MLflow
 ```
 
-Largest SHAP contributions:
+### 4. Start the API
 
-```text
-account_age_days = 2738
-SHAP = +0.7209
-
-fan_in = 1
-SHAP = +0.1188
-
-velocity_ratio = 0
-SHAP = -0.0524
+```bash
+docker compose up -d --build
 ```
 
-### C362803701
+The API runs at http://127.0.0.1:8000 and the interactive docs are at http://127.0.0.1:8000/docs.
 
-Risk score:
+---
 
-```text
-0.6871
+## Usage
+
+### Score an account
+
+```bash
+curl -X POST http://127.0.0.1:8000/score \
+  -H "Content-Type: application/json" \
+  -d '{"account_id": "C1436118706"}'
 ```
 
-Largest SHAP contributions:
+<details>
+<summary>Windows (PowerShell)</summary>
 
-```text
-account_age_days = 2741
-SHAP = +0.7209
+```powershell
+$body = @{ account_id = "C1436118706" } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8000/score" `
+  -ContentType "application/json" -Body $body
+```
+</details>
 
-fan_in = 1
-SHAP = +0.1188
+**Response fields**
 
-velocity_ratio = 0
-SHAP = -0.0524
+| Field | Description |
+|---|---|
+| `risk_score` | Model probability that the account shows mule-like behaviour |
+| `model_version` | Registered MLflow model version that produced the score |
+| `reasons` | Top three SHAP contributions (feature, value, impact) |
+
+SHAP reasons explain how the model reached a score. They are not proof that an account is a money mule.
+
+---
+
+## Testing
+
+```bash
+ruff check .
+pytest -q
 ```
 
-### C810812783
+The same checks run in GitHub Actions on every push and pull request, against a PostgreSQL 17 service container.
 
-Risk score:
+---
 
-```text
-0.6720
-```
-
-Largest SHAP contributions:
+## Project structure
 
 ```text
-account_age_days = 3346
-SHAP = +0.6284
-
-fan_in = 1
-SHAP = +0.1171
-
-velocity_ratio = 0
-SHAP = -0.0272
+mulewatch/
+├── db/                  # schema.sql, roles.sql (read-only role)
+├── pipeline/            # data seeding, feature engineering, alert generation
+├── scoring/             # model training and FastAPI scoring service
+├── docs/                # design document and feature definitions
+├── tests/               # pytest suite
+├── .github/workflows/   # CI: Ruff + pytest
+├── docker-compose.yml
+└── pyproject.toml
 ```
 
-These SHAP explanations describe how the current model arrived at its scores. They are not proof that an account is a money mule.
+---
 
-## Data and model disclaimer
+## Limitations
 
-MuleWatch currently uses PaySim transaction data together with Faker-generated synthetic customer information.
-
-For the Week 1 model, an account receives a proxy mule label when it sent or received a PaySim transaction labelled as fraud.
-
-This is a development approximation and is not real-world money-mule ground truth.
-
-The current model and alert outputs are for learning and development. MuleWatch is designed to support analyst investigation and human approval rather than autonomously act on an account.
+- **Synthetic data.** PaySim is transaction-centric: many accounts appear only a few times, which limits how much account-level behaviour the model can observe.
+- **Proxy labels.** An account is labelled as a mule if it sent or received a PaySim transaction flagged as fraud. This approximates mule activity; it is not real-world ground truth.
+- **Not for production use.** Scores and alerts are for learning and demonstration. Any real decision on an account requires human review.
