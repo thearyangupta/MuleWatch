@@ -21,6 +21,8 @@ MLFLOW_TRACKING_URI = os.getenv(
     "sqlite:///mlflow.db",
 )
 
+MODEL_ARTIFACT_PATH = os.getenv("MODEL_ARTIFACT_PATH")
+
 MODEL_NAME = "mulewatch-mule-model"
 MODEL_VERSION = "1"
 
@@ -73,6 +75,9 @@ def get_latest_feature_date(
 
 def load_registered_model():
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+
+    if MODEL_ARTIFACT_PATH:
+        return mlflow.xgboost.load_model(MODEL_ARTIFACT_PATH)
 
     model_uri = f"models:/{MODEL_NAME}/{MODEL_VERSION}"
 

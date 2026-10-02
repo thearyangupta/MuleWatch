@@ -41,6 +41,9 @@ CREATE TABLE IF NOT EXISTS alerts (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_alerts_account_date
+    ON alerts (account_id, alert_date);
+
 CREATE TABLE IF NOT EXISTS cases (
     id BIGSERIAL PRIMARY KEY,
     alert_id BIGINT NOT NULL REFERENCES alerts(id),

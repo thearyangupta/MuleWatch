@@ -15,5 +15,21 @@ services:
       timeout: 5s
       retries: 5
 
+  api:
+    build:
+      context: .
+    environment:
+      MULEWATCH_DATABASE_URL: postgresql://mulewatch_readonly:mulewatch_readonly_dev@postgres:5432/mulewatch
+      MLFLOW_TRACKING_URI: sqlite:////app/mlflow.db
+      MODEL_ARTIFACT_PATH: /app/mlruns/1/models/m-5bf5e8ca4e1b49a4bf9139b5668ab47c/artifacts
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./mlflow.db:/app/mlflow.db
+      - ./mlruns:/app/mlruns
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   mulewatch_postgres_data:
