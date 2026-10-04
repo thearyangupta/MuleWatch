@@ -18,11 +18,43 @@ CREATE TABLE IF NOT EXISTS transactions (
     id BIGSERIAL PRIMARY KEY,
     sender_account_id TEXT NOT NULL REFERENCES accounts(id),
     receiver_account_id TEXT NOT NULL REFERENCES accounts(id),
+    source_transaction_id TEXT UNIQUE,
     transaction_type TEXT NOT NULL,
     amount NUMERIC(18, 2) NOT NULL,
     timestamp TIMESTAMPTZ NOT NULL,
     is_fraud BOOLEAN NOT NULL DEFAULT FALSE
 );
+CREATE TABLE IF NOT EXISTS staging_transactions (
+    source_transaction_id TEXT,
+    run_date DATE NOT NULL,
+    sender_account_id TEXT NOT NULL,
+    receiver_account_id TEXT NOT NULL,
+    transaction_type TEXT NOT NULL,
+    amount NUMERIC(18, 2) NOT NULL,
+    timestamp TIMESTAMPTZ NOT NULL,
+    is_fraud BOOLEAN NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_staging_transactions_run_date
+    ON staging_transactions (run_date);
+
+
+CREATE TABLE IF NOT EXISTS quarantine_transactions (
+    id BIGSERIAL PRIMARY KEY,
+    source_transaction_id TEXT,
+    run_date DATE NOT NULL,
+    sender_account_id TEXT,
+    receiver_account_id TEXT,
+    transaction_type TEXT,
+    amount NUMERIC(18, 2),
+    timestamp TIMESTAMPTZ,
+    is_fraud BOOLEAN,
+    failure_reason TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_quarantine_transactions_run_date
+    ON quarantine_transactions (run_date);
 
 CREATE INDEX IF NOT EXISTS idx_transactions_sender_timestamp
     ON transactions (sender_account_id, timestamp);
