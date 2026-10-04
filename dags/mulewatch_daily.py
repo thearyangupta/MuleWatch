@@ -2,14 +2,22 @@ from datetime import datetime
 
 from airflow.sdk import dag, get_current_context, task
 
+from pipeline.ingest import ingest_landing_file
+from pipeline.tasks import (
+    build_features_for_date,
+    create_alerts_for_date,
+    score_features_for_date,
+)
+from pipeline.validate import validate_staged_transactions
 
-def log_run_date(task_name: str) -> None:
+
+def get_run_date():
     context = get_current_context()
     dag_run = context["dag_run"]
 
-    run_date = dag_run.logical_date or dag_run.run_after
+    run_datetime = dag_run.logical_date or dag_run.run_after
 
-    print(f"{task_name}: logical_date={run_date}")
+    return run_datetime.date()
 
 
 @dag(
@@ -22,25 +30,46 @@ def log_run_date(task_name: str) -> None:
 def mulewatch_daily():
     @task
     def ingest():
-        log_run_date("ingest")
+        run_date = get_run_date()
+
+        row_count = ingest_landing_file(run_date)
+
+        return {
+            "run_date": run_date.isoformat(),
+            "rows_ingested": row_count,
+        }
 
     @task
     def validate():
-        log_run_date("validate")
+        run_date = get_run_date()
+
+        clean_count, quarantine_count = validate_staged_transactions(run_date)
+
+        return {
+            "run_date": run_date.isoformat(),
+            "clean_count": clean_count,
+            "quarantine_count": quarantine_count,
+        }
 
     @task
     def features():
-        log_run_date("features")
+        run_date = get_run_date()
+
+        return build_features_for_date(run_date)
 
     @task
     def score():
-        log_run_date("score")
+        run_date = get_run_date()
+
+        return score_features_for_date(run_date)
 
     @task
     def alerts():
-        log_run_date("alerts")
+        run_date = get_run_date()
 
-    ingest() >> validate() >> features() >> score() >> alerts()
+        return create_alerts_for_date(run_date)
+
+    (ingest() >> validate() >> features() >> score() >> alerts())
 
 
 mulewatch_daily()

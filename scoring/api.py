@@ -6,6 +6,7 @@ import mlflow.xgboost
 import pandas as pd
 import psycopg
 from fastapi import FastAPI, HTTPException
+from psycopg.rows import dict_row
 from pydantic import BaseModel
 
 from pipeline.features import build_daily_feature_row
@@ -45,6 +46,22 @@ class ScoreResponse(BaseModel):
     risk_score: float
     model_version: str
     reasons: list[Reason]
+
+
+class BatchScoreRequest(BaseModel):
+    account_ids: list[str]
+    feature_date: date
+
+
+class BatchScoreResult(BaseModel):
+    account_id: str
+    risk_score: float
+    model_version: str
+    reasons: list[Reason]
+
+
+class BatchScoreResponse(BaseModel):
+    scores: list[BatchScoreResult]
 
 
 def get_latest_feature_date(
@@ -129,3 +146,79 @@ def score_account(
         model_version=MODEL_VERSION,
         reasons=reasons,
     )
+
+
+@app.post(
+    "/score/batch",
+    response_model=BatchScoreResponse,
+)
+def score_batch(
+    request: BatchScoreRequest,
+) -> BatchScoreResponse:
+    if not request.account_ids:
+        return BatchScoreResponse(scores=[])
+
+    with psycopg.connect(DATABASE_URL) as connection:
+        with connection.cursor(row_factory=dict_row) as cursor:
+            cursor.execute(
+                """
+                SELECT
+                    account_id,
+                    pass_through_ratio,
+                    median_dwell_minutes,
+                    fan_in,
+                    fan_out,
+                    transfer_cashout_chains,
+                    account_age_days,
+                    velocity_ratio
+                FROM account_features
+                WHERE feature_date = %s
+                  AND account_id = ANY(%s)
+                ORDER BY account_id
+                """,
+                (
+                    request.feature_date,
+                    request.account_ids,
+                ),
+            )
+
+            feature_rows = cursor.fetchall()
+
+    if not feature_rows:
+        raise HTTPException(
+            status_code=404,
+            detail="No features found for requested accounts",
+        )
+
+    model = load_registered_model()
+
+    features = pd.DataFrame(
+        [{column: row[column] for column in FEATURE_COLUMNS} for row in feature_rows],
+        columns=FEATURE_COLUMNS,
+    )
+
+    probabilities = model.predict_proba(features)[:, 1]
+
+    scores = []
+
+    for row, probability in zip(
+        feature_rows,
+        probabilities,
+        strict=True,
+    ):
+        reasons = get_shap_reasons(
+            model=model,
+            feature_row=row,
+            top_n=3,
+        )
+
+        scores.append(
+            BatchScoreResult(
+                account_id=row["account_id"],
+                risk_score=float(probability),
+                model_version=MODEL_VERSION,
+                reasons=reasons,
+            )
+        )
+
+    return BatchScoreResponse(scores=scores)

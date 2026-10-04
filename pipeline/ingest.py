@@ -1,3 +1,4 @@
+import os
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from uuid import NAMESPACE_URL, uuid5
@@ -7,7 +8,11 @@ import psycopg
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 LANDING_DIR = PROJECT_ROOT / "data" / "landing"
-DATABASE_URL = "postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch"
+
+DATABASE_URL = os.getenv(
+    "MULEWATCH_DATABASE_URL",
+    "postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch",
+)
 
 
 def make_source_transaction_id(run_date: date, row_number: int) -> str:

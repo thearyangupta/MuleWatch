@@ -1,3 +1,4 @@
+import os
 from datetime import date
 
 import pandas as pd
@@ -14,7 +15,10 @@ ALLOWED_TRANSACTION_TYPES = {
 
 QUARANTINE_THRESHOLD = 0.05
 
-DATABASE_URL = "postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch"
+DATABASE_URL = os.getenv(
+    "MULEWATCH_DATABASE_URL",
+    "postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch",
+)
 
 
 transaction_schema = pa.DataFrameSchema(

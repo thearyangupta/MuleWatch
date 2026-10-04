@@ -106,6 +106,7 @@ def insert_alerts(
     alert_date: date,
     candidates: list[dict],
     model_version: str,
+    threshold: float | None = None,
 ) -> int:
     inserted_count = 0
 
@@ -118,10 +119,12 @@ def insert_alerts(
                     alert_date,
                     risk_score,
                     model_version,
+                    threshold,
                     reasons,
                     status
                 )
                 VALUES (
+                    %s,
                     %s,
                     %s,
                     %s,
@@ -141,6 +144,7 @@ def insert_alerts(
                     alert_date,
                     candidate["risk_score"],
                     model_version,
+                    threshold,
                     json.dumps(candidate["reasons"]),
                 ),
             )
@@ -172,14 +176,15 @@ def generate_daily_alerts(
         alert_budget=alert_budget,
     )
 
+    threshold = candidates[-1]["risk_score"] if candidates else None
+
     inserted_count = insert_alerts(
         connection=connection,
         alert_date=alert_date,
         candidates=candidates,
         model_version=model_version,
+        threshold=threshold,
     )
-
-    threshold = candidates[-1]["risk_score"] if candidates else None
 
     return {
         "alert_date": alert_date,

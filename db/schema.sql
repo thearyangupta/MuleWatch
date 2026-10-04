@@ -62,16 +62,39 @@ CREATE INDEX IF NOT EXISTS idx_transactions_sender_timestamp
 CREATE INDEX IF NOT EXISTS idx_transactions_receiver_timestamp
     ON transactions (receiver_account_id, timestamp);
 
+CREATE TABLE IF NOT EXISTS account_features (
+    account_id TEXT NOT NULL REFERENCES accounts(id),
+    feature_date DATE NOT NULL,
+    pass_through_ratio DOUBLE PRECISION NOT NULL,
+    median_dwell_minutes DOUBLE PRECISION NOT NULL,
+    fan_in INTEGER NOT NULL,
+    fan_out INTEGER NOT NULL,
+    transfer_cashout_chains INTEGER NOT NULL,
+    account_age_days INTEGER NOT NULL,
+    velocity_ratio DOUBLE PRECISION NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    PRIMARY KEY (account_id, feature_date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_account_features_date
+    ON account_features (feature_date);
+
 CREATE TABLE IF NOT EXISTS alerts (
     id BIGSERIAL PRIMARY KEY,
     account_id TEXT NOT NULL REFERENCES accounts(id),
     alert_date DATE NOT NULL,
     risk_score DOUBLE PRECISION NOT NULL,
     model_version TEXT NOT NULL,
+    threshold DOUBLE PRECISION NOT NULL,
     reasons JSONB NOT NULL,
     status TEXT NOT NULL DEFAULT 'NEW',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE alerts
+    ADD COLUMN IF NOT EXISTS threshold DOUBLE PRECISION;
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_alerts_account_date
     ON alerts (account_id, alert_date);
@@ -93,3 +116,18 @@ CREATE TABLE IF NOT EXISTS audit_log (
     details JSONB,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE IF NOT EXISTS account_scores (
+    account_id TEXT NOT NULL REFERENCES accounts(id),
+    score_date DATE NOT NULL,
+    risk_score DOUBLE PRECISION NOT NULL,
+    model_version TEXT NOT NULL,
+    reasons JSONB NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    PRIMARY KEY (account_id, score_date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_account_scores_date
+    ON account_scores (score_date);
