@@ -6,7 +6,9 @@ __pycache__/
 .env
 .env.*
 notes-learning/
-data/raw/
+data/
 # Local MLflow tracking data
 mlflow.db
 mlruns/
+airflow/config
+airflow/logs
