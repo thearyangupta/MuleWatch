@@ -38,6 +38,7 @@ x-airflow-common:
     - ../pipeline:/opt/airflow/pipeline
     - ../scoring:/opt/airflow/scoring
     - ../data:/opt/airflow/data
+    - ../tests:/opt/airflow/tests
     - ${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
     - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins

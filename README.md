@@ -41,6 +41,84 @@ flowchart TD
 
 ---
 
+## Daily Airflow pipeline
+
+MuleWatch runs its daily account-scoring workflow with Apache Airflow. Each DAG run processes one logical date and passes only lightweight metadata between tasks; intermediate data is persisted in PostgreSQL.
+
+```mermaid
+flowchart LR
+    A[Daily landing CSV] --> B[ingest]
+    B --> C[validate]
+    C --> D[features]
+    D --> E[score]
+    E --> F[alerts]
+    F --> G[report]
+
+    C --> Q[(Quarantine)]
+    B --> DB[(PostgreSQL)]
+    C --> DB
+    D --> DB
+    E --> DB
+    F --> DB
+    G --> DB
+
+    E --> API[FastAPI /score/batch]
+```
+
+The `mulewatch_daily` DAG performs:
+
+1. **ingest** — loads the landing file for the logical date idempotently.
+2. **validate** — validates rows and quarantines invalid records.
+3. **features** — computes and persists account-day features.
+4. **score** — sends accounts to the batch scoring API and persists model scores.
+5. **alerts** — creates the analyst-capacity-limited daily alert queue.
+6. **report** — records run metrics in `pipeline_runs`.
+
+### Start Airflow
+
+```powershell
+docker compose -f airflow\docker-compose.yaml up -d
+```
+
+Airflow is available at `http://localhost:8080`.
+
+### 30-day backfill
+
+The simulated January 2026 dataset can be processed historically with Airflow 3:
+
+```powershell
+docker compose -f airflow\docker-compose.yaml exec airflow-scheduler `
+    airflow backfill create `
+    --dag-id mulewatch_daily `
+    --from-date 2026-01-01 `
+    --to-date 2026-01-30 `
+    --max-active-runs 1 `
+    --reprocess-behavior none
+```
+
+`max_active_runs=1` processes the historical days sequentially.
+
+### Airflow Grid
+
+![MuleWatch Airflow Grid](docs/airflow-grid.png)
+
+### Backfill summary
+
+Final 30-day metrics are recorded in the `pipeline_runs` table.
+
+| Metric | Result |
+|---|---:|
+| Completed days | Pending backfill completion |
+| Date range | 2026-01-01 to 2026-01-30 |
+| Rows ingested | Pending |
+| Rows quarantined | Pending |
+| Accounts scored | Pending |
+| Alerts raised | Pending |
+
+The pipeline is designed to be idempotent: reprocessing the same logical date replaces or conflict-safely updates date-scoped outputs instead of accumulating duplicate transactions, scores, or alerts.
+
+---
+
 ## Money-mule features
 
 | Feature | What it measures | Why it can signal mule activity |

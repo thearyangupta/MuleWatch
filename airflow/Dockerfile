@@ -10,4 +10,5 @@ RUN pip install --no-cache-dir \
     mlflow \
     fastapi \
     uvicorn \
-    httpx
+    httpx \
+    pytest
