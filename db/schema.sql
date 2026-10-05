@@ -131,3 +131,27 @@ CREATE TABLE IF NOT EXISTS account_scores (
 
 CREATE INDEX IF NOT EXISTS idx_account_scores_date
     ON account_scores (score_date);
+
+CREATE TABLE IF NOT EXISTS pipeline_failures (
+    id BIGSERIAL PRIMARY KEY,
+    dag_id TEXT NOT NULL,
+    task_id TEXT NOT NULL,
+    run_id TEXT NOT NULL,
+    logical_date TIMESTAMPTZ,
+    error_message TEXT,
+    failed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_pipeline_failures_run
+    ON pipeline_failures (dag_id, run_id);
+
+CREATE TABLE IF NOT EXISTS pipeline_runs (
+    run_date DATE PRIMARY KEY,
+    rows_in INTEGER NOT NULL,
+    rows_quarantined INTEGER NOT NULL,
+    accounts_scored INTEGER NOT NULL,
+    alerts_raised INTEGER NOT NULL,
+    duration_seconds DOUBLE PRECISION NOT NULL,
+    model_version TEXT NOT NULL,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

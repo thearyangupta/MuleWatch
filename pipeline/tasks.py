@@ -244,6 +244,7 @@ def score_features_for_date(
                         "account_ids": account_chunk,
                         "feature_date": (feature_date.isoformat()),
                     },
+                    timeout=30.0,
                 )
 
                 response.raise_for_status()
