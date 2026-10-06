@@ -1,0 +1,55 @@
+sources:
+  - id: fca_money_mules_detection_2023
+    source: FCA
+    title: "Proceeds of fraud - Detecting and preventing money mules"
+    url: "https://www.fca.org.uk/publications/multi-firm-reviews/proceeds-fraud-detecting-preventing-money-mules"
+    date: "2023-10-19"
+
+  - id: fca_nfd_mule_detection_2025
+    source: FCA
+    title: "Firms' use of the National Fraud Database (NFD) and money mule account detection tools"
+    url: "https://www.fca.org.uk/publications/multi-firm-reviews/firms-use-national-fraud-database-money-mule-account-detection-tools"
+    date: "2025-01-23"
+
+  - id: fca_mule_activity_cashing_out_2026
+    source: FCA
+    title: "Money mules: mule activity and cashing out findings"
+    url: "https://www.fca.org.uk/publications/multi-firm-reviews/money-mules-activity-cashing-out-findings"
+    date: "2026-09-23"
+
+  - id: fca_money_transfer_scams
+    source: FCA
+    title: "Money transfer scams"
+    url: "https://www.fca.org.uk/consumers/money-transfer-scams"
+    date: "2016-04-04"
+
+  - id: nca_money_mules
+    source: National Crime Agency
+    title: "Don't become a money mule: what you need to know"
+    url: "https://www.nationalcrimeagency.gov.uk/moneymuling"
+    date: null
+
+  - id: interpol_money_mules
+    source: INTERPOL
+    title: "Money mules - what are the risks?"
+    url: "https://www.interpol.int/en/Crimes/Financial-crime/Money-mules-what-are-the-risks"
+    date: null
+
+  - id: interpol_your_account_your_crime_2022
+    source: INTERPOL
+    title: "#YourAccountYourCrime: Global campaign exposes use of money mules"
+    url: "https://www.interpol.int/en/News-and-Events/News/2022/YourAccountYourCrime-Global-campaign-exposes-use-of-money-mules"
+    date: "2022-08-10"
+
+  - id: uk_home_office_money_mule_action_plan_2024
+    source: UK Home Office
+    title: "Money mule and financial exploitation action plan"
+    url: "https://www.gov.uk/government/publications/money-mule-action-plan/money-mule-and-financial-exploitation-action-plan-accessible"
+    date: "2024-03-01"
+
+  - id: mulewatch_features
+    source: MuleWatch
+    title: "MuleWatch Feature Definitions"
+    url: null
+    date: null
+    local_path: "docs/FEATURES.md"
