@@ -245,6 +245,7 @@ def test_insert_alerts_persists_required_fields(
         alert_date=date(2026, 1, 10),
         candidates=candidates,
         model_version="1",
+        threshold=0.80,
     )
 
     assert inserted == 1
@@ -301,6 +302,7 @@ def test_insert_alerts_is_idempotent(
         alert_date=date(2026, 1, 10),
         candidates=candidates,
         model_version="1",
+        threshold=0.80,
     )
 
     second_insert = insert_alerts(
@@ -308,6 +310,7 @@ def test_insert_alerts_is_idempotent(
         alert_date=date(2026, 1, 10),
         candidates=candidates,
         model_version="1",
+        threshold=0.80,
     )
 
     assert first_insert == 1
