@@ -10,7 +10,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:17
+        image: pgvector/pgvector:pg17
         env:
           POSTGRES_DB: mulewatch_test
           POSTGRES_USER: mulewatch
@@ -22,6 +22,9 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 5
+
+    env:
+      MULEWATCH_DATABASE_URL: postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch_test
 
     steps:
       - name: Checkout repository
@@ -35,21 +38,25 @@ jobs:
       - name: Install project dependencies and development tools
         run: |
           python -m pip install --upgrade pip
-          python -m pip install faker pandas "psycopg[binary]" scikit-learn xgboost mlflow fastapi httpx pytest ruff
+          python -m pip install faker pandas "psycopg[binary]" scikit-learn xgboost mlflow fastapi httpx pytest ruff pyyaml sentence-transformers pgvector requests beautifulsoup4
 
       - name: Create test database schema and read-only role
         env:
           PGPASSWORD: mulewatch_dev
         run: |
+          psql -h localhost -U mulewatch -d mulewatch_test -c "CREATE EXTENSION IF NOT EXISTS vector;"
           psql -h localhost -U mulewatch -d mulewatch_test -f db/schema.sql
           psql -h localhost -U mulewatch -d mulewatch_test -f db/roles.sql
+
+      - name: Build typology knowledge base
+        run: python rag/ingest.py
 
       - name: Run Ruff
         run: ruff check .
 
       - name: Run tests
-        run: pytest
-      
+        run: pytest --ignore=tests/test_dag_integrity.py
+
       - name: Build Airflow test image
         run: |
           docker build -f airflow/Dockerfile -t mulewatch-airflow-test .
