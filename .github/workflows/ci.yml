@@ -64,8 +64,9 @@ jobs:
       - name: Run DAG integrity test
         run: |
           docker run --rm \
+            --entrypoint python \
             -v "${{ github.workspace }}:/opt/airflow/project" \
             -w /opt/airflow/project \
             -e PYTHONPATH=/opt/airflow/project \
             mulewatch-airflow-test \
-            pytest tests/test_dag_integrity.py -v
+            -m pytest tests/test_dag_integrity.py -v
