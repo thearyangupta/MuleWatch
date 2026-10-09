@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Literal
 
 import psycopg
+from dotenv import load_dotenv
 from langchain.chat_models import init_chat_model
 from langchain_core.messages import (
     AIMessage,
@@ -25,6 +26,9 @@ from agent.tools import (
 )
 from agent.verify import verify_report
 
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(dotenv_path=PROJECT_ROOT / ".env")
+
 MAX_STEPS = 6
 
 DATABASE_URL = os.getenv(
@@ -39,14 +43,14 @@ CASE_DATABASE_URL = os.getenv(
 
 MODEL_NAME = os.getenv(
     "MULEWATCH_LLM_MODEL",
-    "openai:gpt-4o-mini",
+    "google_genai:gemini-2.5-flash-lite",
 )
 
 INPUT_PRICE_PER_MILLION = float(os.getenv("MULEWATCH_INPUT_PRICE_PER_MILLION", "0"))
 
 OUTPUT_PRICE_PER_MILLION = float(os.getenv("MULEWATCH_OUTPUT_PRICE_PER_MILLION", "0"))
 
-PROMPT_PATH = Path(__file__).resolve().parent.parent / "prompts" / "investigate_v1.md"
+PROMPT_PATH = PROJECT_ROOT / "prompts" / "investigate_v1.md"
 
 
 @tool
@@ -84,7 +88,6 @@ TOOLS_BY_NAME = {item.name: item for item in TOOLS}
 
 def create_model():
     """Create the tool-enabled investigation model."""
-
     return init_chat_model(
         MODEL_NAME,
         temperature=0,
@@ -93,7 +96,6 @@ def create_model():
 
 def create_report_model():
     """Create an unbound model for structured reporting."""
-
     return init_chat_model(
         MODEL_NAME,
         temperature=0,
@@ -102,7 +104,6 @@ def create_report_model():
 
 def load_alert(state: InvestigationState) -> dict:
     """Load an alert using a parameterized read-only query."""
-
     with psycopg.connect(
         DATABASE_URL,
         row_factory=dict_row,
@@ -124,7 +125,6 @@ def load_alert(state: InvestigationState) -> dict:
                 """,
                 (state["alert_id"],),
             )
-
             alert = cursor.fetchone()
 
     if alert is None:
@@ -152,7 +152,6 @@ def investigate(
     prompt: str,
 ) -> dict:
     """Call the investigator model and record token usage."""
-
     response = model.invoke(
         [
             SystemMessage(content=prompt),
@@ -173,15 +172,14 @@ def investigate(
     return {
         "messages": [response],
         "steps_taken": state["steps_taken"] + 1,
-        "input_tokens": (state["input_tokens"] + input_tokens),
-        "output_tokens": (state["output_tokens"] + output_tokens),
+        "input_tokens": state["input_tokens"] + input_tokens,
+        "output_tokens": state["output_tokens"] + output_tokens,
         "estimated_cost_usd": (state["estimated_cost_usd"] + estimated_cost),
     }
 
 
 def execute_tools(state: InvestigationState) -> dict:
     """Execute approved tools within the investigation budget."""
-
     last_message = state["messages"][-1]
 
     messages = []
@@ -218,7 +216,6 @@ def execute_tools(state: InvestigationState) -> dict:
                     "message": "Tool is not allowed",
                 },
             }
-
             steps_taken += 1
 
         else:
@@ -226,7 +223,6 @@ def execute_tools(state: InvestigationState) -> dict:
 
             try:
                 raw_result = TOOLS_BY_NAME[name].invoke(call["args"])
-
                 result = json.loads(raw_result)
 
                 if "evidence_id" in result:
@@ -270,7 +266,6 @@ def route_after_investigate(
     state: InvestigationState,
 ) -> Literal["tools", "ensure_typology"]:
     """Route to tools or the mandatory typology stage."""
-
     if state["steps_taken"] >= MAX_STEPS:
         return "ensure_typology"
 
@@ -286,7 +281,6 @@ def route_after_tools(
     state: InvestigationState,
 ) -> Literal["investigate", "ensure_typology"]:
     """Prevent investigation from exceeding its budget."""
-
     reserved = 0 if state["typology_checked"] else 1
 
     if state["steps_taken"] + reserved >= MAX_STEPS:
@@ -297,7 +291,6 @@ def route_after_tools(
 
 def ensure_typology(state: InvestigationState) -> dict:
     """Retrieve typology guidance if not already retrieved."""
-
     if state["typology_checked"]:
         return {}
 
@@ -331,7 +324,6 @@ def ensure_typology(state: InvestigationState) -> dict:
                 "message": str(exc),
             },
         }
-
         succeeded = False
 
     steps_taken = state["steps_taken"] + 1
@@ -352,7 +344,6 @@ def assess(
     model,
 ) -> dict:
     """Generate the initial structured CaseReport."""
-
     if not state["typology_checked"]:
         return {
             "status": "INSUFFICIENT_EVIDENCE",
@@ -385,7 +376,6 @@ def verify(
     model,
 ) -> dict:
     """Verify citations and retry generation at most once."""
-
     if state["status"] == "INSUFFICIENT_EVIDENCE":
         return {}
 
@@ -423,7 +413,6 @@ def verify(
                     state["evidence"],
                     feedback=error,
                 )
-
                 report_data = report.model_dump(mode="json")
 
             except Exception as retry_exc:
@@ -439,7 +428,6 @@ def verify(
 
 def save(state: InvestigationState) -> dict:
     """Persist the report and available tool trace."""
-
     trace = []
 
     for message in state["messages"]:
@@ -518,7 +506,6 @@ def build_graph(
     report_model=None,
 ):
     """Compile the investigation and reporting graph."""
-
     if model is None:
         model = create_model()
 
@@ -629,7 +616,6 @@ def initial_state(
     alert_id: int,
 ) -> InvestigationState:
     """Create the initial investigation state."""
-
     return {
         "alert_id": alert_id,
         "alert": {},

@@ -13,3 +13,5 @@ mlruns/
 airflow/config
 airflow/logs
 /commands.py
+# Generated evaluation results
+/evals/results/

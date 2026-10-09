@@ -1,4 +1,4 @@
-from typing import Annotated, Any, TypedDict
+from typing import Annotated, Any, NotRequired, TypedDict
 
 from langgraph.graph.message import add_messages
 
@@ -16,3 +16,5 @@ class InvestigationState(TypedDict):
     input_tokens: int
     output_tokens: int
     estimated_cost_usd: float
+    validation_error: NotRequired[str]
+    case_id: NotRequired[int]

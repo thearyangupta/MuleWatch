@@ -9,6 +9,7 @@ from fastapi import FastAPI, HTTPException
 from psycopg.rows import dict_row
 from pydantic import BaseModel
 
+from api.investigate import router as investigate_router
 from pipeline.features import build_daily_feature_row
 from scoring.train import FEATURE_COLUMNS, get_shap_reasons
 
@@ -30,6 +31,7 @@ MODEL_VERSION = "1"
 app = FastAPI(
     title="MuleWatch Scoring API",
 )
+app.include_router(investigate_router)
 
 
 class ScoreRequest(BaseModel):
