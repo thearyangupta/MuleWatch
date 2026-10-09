@@ -1,3 +1,4 @@
+
 CREATE TABLE IF NOT EXISTS customers (
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL,
@@ -24,20 +25,20 @@ CREATE TABLE IF NOT EXISTS transactions (
     timestamp TIMESTAMPTZ NOT NULL,
     is_fraud BOOLEAN NOT NULL DEFAULT FALSE
 );
+
 CREATE TABLE IF NOT EXISTS staging_transactions (
     source_transaction_id TEXT,
     run_date DATE NOT NULL,
     sender_account_id TEXT NOT NULL,
     receiver_account_id TEXT NOT NULL,
     transaction_type TEXT NOT NULL,
-    amount NUMERIC(18, 2) NOT NULL,
+    amount NUMERIC(18, 2),
     timestamp TIMESTAMPTZ NOT NULL,
     is_fraud BOOLEAN NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_staging_transactions_run_date
     ON staging_transactions (run_date);
-
 
 CREATE TABLE IF NOT EXISTS quarantine_transactions (
     id BIGSERIAL PRIMARY KEY,
@@ -104,9 +105,18 @@ CREATE TABLE IF NOT EXISTS cases (
     alert_id BIGINT NOT NULL REFERENCES alerts(id),
     status TEXT NOT NULL DEFAULT 'OPEN',
     summary TEXT,
+    report JSONB,
+    tool_trace JSONB,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Upgrade databases where the cases table already exists.
+ALTER TABLE cases
+    ADD COLUMN IF NOT EXISTS report JSONB;
+
+ALTER TABLE cases
+    ADD COLUMN IF NOT EXISTS tool_trace JSONB;
 
 CREATE TABLE IF NOT EXISTS audit_log (
     id BIGSERIAL PRIMARY KEY,
