@@ -251,3 +251,22 @@ def test_masking_failure_blocks_model(monkeypatch):
         )
 
     assert model.requests == []
+
+
+@pytest.mark.parametrize(
+    "phone",
+    [
+        "+1-495-452-3141x6865",
+        "(495) 452-3141 ext. 6865",
+        "495-452-3141 extension 6865",
+        "495.452.3141 x6865",
+    ],
+)
+def test_phone_extensions_are_fully_masked(phone):
+    privacy = CasePrivacy()
+
+    safe = privacy.mask_text(f"Customer phone: {phone}")
+
+    assert phone not in safe
+    assert "6865" not in safe
+    assert "[REDACTED_PII]" in safe

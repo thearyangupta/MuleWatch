@@ -1,6 +1,7 @@
 """PII masking and case-scoped pseudonymisation."""
 
 import logging
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -14,6 +15,16 @@ for logger_name in (
     "spacy",
 ):
     logging.getLogger(logger_name).disabled = True
+
+_PHONE_WITH_EXTENSION = re.compile(
+    r"(?<![\w])"
+    r"(?:\+?1[\s.\-]?)?"
+    r"(?:\(\d{3}\)|\d{3})[\s.\-]?"
+    r"\d{3}[\s.\-]?\d{4}"
+    r"(?:\s*(?:ext\.?|extension|x|#)\s*\d+)"
+    r"(?!\w)",
+    re.IGNORECASE,
+)
 
 
 class PrivacyError(RuntimeError):
@@ -74,6 +85,8 @@ class CasePrivacy:
                 original = key.split(":", 1)[1]
                 if original:
                     text = text.replace(original, token)
+
+            text = _PHONE_WITH_EXTENSION.sub("[REDACTED_PII]", text)
 
             results = self.analyzer.analyze(
                 text=text,
