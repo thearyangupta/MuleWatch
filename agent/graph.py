@@ -17,6 +17,7 @@ from langchain_core.tools import tool
 from langgraph.graph import END, START, StateGraph
 from psycopg.rows import dict_row
 
+from agent.pii import CasePrivacy, PrivacyError
 from agent.report import CaseReport, generate_report
 from agent.state import InvestigationState
 from agent.tools import (
@@ -58,16 +59,13 @@ def account_activity_tool(
     account_id: str,
     days: int = 30,
 ) -> str:
-    """Inspect an account's recent transactions and activity."""
-    return get_account_activity(
-        account_id,
-        days,
-    ).model_dump_json()
+    """Inspect an account's recent activity using its account alias."""
+    return get_account_activity(account_id, days).model_dump_json()
 
 
 @tool
 def account_score_tool(account_id: str) -> str:
-    """Retrieve an account's ML risk score and SHAP reasons."""
+    """Retrieve an account's risk score using its account alias."""
     return score_account(account_id).model_dump_json()
 
 
@@ -87,7 +85,6 @@ TOOLS_BY_NAME = {item.name: item for item in TOOLS}
 
 
 def create_model():
-    """Create the tool-enabled investigation model."""
     return init_chat_model(
         MODEL_NAME,
         temperature=0,
@@ -95,15 +92,20 @@ def create_model():
 
 
 def create_report_model():
-    """Create an unbound model for structured reporting."""
     return init_chat_model(
         MODEL_NAME,
         temperature=0,
     )
 
 
-def load_alert(state: InvestigationState) -> dict:
-    """Load an alert using a parameterized read-only query."""
+def load_alert(
+    state: InvestigationState,
+    privacy: CasePrivacy | None = None,
+) -> dict:
+    """Load the alert, then mask it before entering graph state."""
+    if privacy is None:
+        privacy = CasePrivacy()
+
     with psycopg.connect(
         DATABASE_URL,
         row_factory=dict_row,
@@ -125,6 +127,7 @@ def load_alert(state: InvestigationState) -> dict:
                 """,
                 (state["alert_id"],),
             )
+
             alert = cursor.fetchone()
 
     if alert is None:
@@ -132,30 +135,86 @@ def load_alert(state: InvestigationState) -> dict:
 
     alert["alert_date"] = alert["alert_date"].isoformat()
 
+    safe_alert = privacy.mask(alert)
+
     return {
-        "alert": alert,
+        "alert": safe_alert,
         "status": "INVESTIGATING",
         "messages": [
             HumanMessage(
                 content=(
                     "Investigate this money-mule alert:\n"
-                    f"{json.dumps(alert, default=str)}"
+                    f"{json.dumps(safe_alert, default=str)}"
                 )
             )
         ],
     }
 
 
+def _safe_model_messages(
+    messages: list,
+    privacy: CasePrivacy,
+) -> list:
+    """Build a model-safe copy of the existing message history."""
+    safe_messages = []
+
+    for message in messages:
+        if isinstance(message, AIMessage):
+            safe_calls = [
+                {
+                    **call,
+                    "args": privacy.mask(call["args"]),
+                }
+                for call in message.tool_calls
+            ]
+
+            safe_messages.append(
+                AIMessage(
+                    content=privacy.mask(message.content),
+                    tool_calls=safe_calls,
+                )
+            )
+
+        elif isinstance(message, ToolMessage):
+            safe_messages.append(
+                ToolMessage(
+                    content=json.dumps(
+                        privacy.mask(json.loads(message.content)),
+                        default=str,
+                    ),
+                    tool_call_id=message.tool_call_id,
+                )
+            )
+
+        elif isinstance(message, HumanMessage):
+            safe_messages.append(HumanMessage(content=privacy.mask(message.content)))
+
+        elif isinstance(message, SystemMessage):
+            safe_messages.append(SystemMessage(content=privacy.mask(message.content)))
+
+        else:
+            raise PrivacyError("Unsupported model message type")
+
+    return safe_messages
+
+
 def investigate(
     state: InvestigationState,
     model,
     prompt: str,
+    privacy: CasePrivacy | None = None,
 ) -> dict:
-    """Call the investigator model and record token usage."""
+    """Call the model with masked content only."""
+    if privacy is None:
+        privacy = CasePrivacy()
+
     response = model.invoke(
         [
-            SystemMessage(content=prompt),
-            *state["messages"],
+            SystemMessage(content=privacy.mask(prompt)),
+            *_safe_model_messages(
+                state["messages"],
+                privacy,
+            ),
         ]
     )
 
@@ -169,8 +228,22 @@ def investigate(
         + output_tokens * OUTPUT_PRICE_PER_MILLION
     ) / 1_000_000
 
+    safe_calls = [
+        {
+            **call,
+            "args": privacy.mask(call["args"]),
+        }
+        for call in response.tool_calls
+    ]
+
+    safe_response = AIMessage(
+        content=privacy.mask(response.content),
+        tool_calls=safe_calls,
+        usage_metadata=response.usage_metadata,
+    )
+
     return {
-        "messages": [response],
+        "messages": [safe_response],
         "steps_taken": state["steps_taken"] + 1,
         "input_tokens": state["input_tokens"] + input_tokens,
         "output_tokens": state["output_tokens"] + output_tokens,
@@ -178,8 +251,14 @@ def investigate(
     }
 
 
-def execute_tools(state: InvestigationState) -> dict:
-    """Execute approved tools within the investigation budget."""
+def execute_tools(
+    state: InvestigationState,
+    privacy: CasePrivacy | None = None,
+) -> dict:
+    """Resolve aliases privately, then mask tool results."""
+    if privacy is None:
+        privacy = CasePrivacy()
+
     last_message = state["messages"][-1]
 
     messages = []
@@ -222,8 +301,19 @@ def execute_tools(state: InvestigationState) -> dict:
             steps_taken += 1
 
             try:
-                raw_result = TOOLS_BY_NAME[name].invoke(call["args"])
-                result = json.loads(raw_result)
+                arguments = dict(call["args"])
+
+                if name in {
+                    "account_activity_tool",
+                    "account_score_tool",
+                }:
+                    arguments["account_id"] = privacy.resolve_account(
+                        arguments["account_id"]
+                    )
+
+                raw_result = TOOLS_BY_NAME[name].invoke(arguments)
+
+                result = privacy.mask(json.loads(raw_result))
 
                 if "evidence_id" in result:
                     evidence_items.append(result)
@@ -235,12 +325,21 @@ def execute_tools(state: InvestigationState) -> dict:
                 ):
                     typology_checked = True
 
-            except Exception as exc:
+            except PrivacyError:
                 result = {
                     "ok": False,
                     "error": {
-                        "type": type(exc).__name__,
-                        "message": str(exc),
+                        "type": "privacy_rejection",
+                        "message": "Unknown or unsafe account alias",
+                    },
+                }
+
+            except Exception:
+                result = {
+                    "ok": False,
+                    "error": {
+                        "type": "tool_error",
+                        "message": "Tool execution failed",
                     },
                 }
 
@@ -265,7 +364,6 @@ def execute_tools(state: InvestigationState) -> dict:
 def route_after_investigate(
     state: InvestigationState,
 ) -> Literal["tools", "ensure_typology"]:
-    """Route to tools or the mandatory typology stage."""
     if state["steps_taken"] >= MAX_STEPS:
         return "ensure_typology"
 
@@ -280,7 +378,6 @@ def route_after_investigate(
 def route_after_tools(
     state: InvestigationState,
 ) -> Literal["investigate", "ensure_typology"]:
-    """Prevent investigation from exceeding its budget."""
     reserved = 0 if state["typology_checked"] else 1
 
     if state["steps_taken"] + reserved >= MAX_STEPS:
@@ -289,8 +386,14 @@ def route_after_tools(
     return "investigate"
 
 
-def ensure_typology(state: InvestigationState) -> dict:
-    """Retrieve typology guidance if not already retrieved."""
+def ensure_typology(
+    state: InvestigationState,
+    privacy: CasePrivacy | None = None,
+) -> dict:
+    """Retrieve required typology evidence."""
+    if privacy is None:
+        privacy = CasePrivacy()
+
     if state["typology_checked"]:
         return {}
 
@@ -310,18 +413,22 @@ def ensure_typology(state: InvestigationState) -> dict:
 
     try:
         evidence = search_typologies(query)
-        result = evidence.model_dump(mode="json")
+
+        result = privacy.mask(evidence.model_dump(mode="json"))
 
         succeeded = bool(
             result.get("data", {}).get("ok") and result.get("data", {}).get("chunks")
         )
 
-    except Exception as exc:
+    except PrivacyError:
+        raise
+
+    except Exception:
         result = {
             "source": "search_typologies",
             "error": {
-                "type": type(exc).__name__,
-                "message": str(exc),
+                "type": "tool_error",
+                "message": "Typology retrieval failed",
             },
         }
         succeeded = False
@@ -342,8 +449,12 @@ def ensure_typology(state: InvestigationState) -> dict:
 def assess(
     state: InvestigationState,
     model,
+    privacy: CasePrivacy | None = None,
 ) -> dict:
-    """Generate the initial structured CaseReport."""
+    """Generate the structured report from masked evidence."""
+    if privacy is None:
+        privacy = CasePrivacy()
+
     if not state["typology_checked"]:
         return {
             "status": "INSUFFICIENT_EVIDENCE",
@@ -353,29 +464,36 @@ def assess(
     try:
         report = generate_report(
             model,
-            state["alert"],
-            state["evidence"],
+            privacy.mask(state["alert"]),
+            privacy.mask(state["evidence"]),
         )
 
         return {
             "status": "VERIFYING",
-            "report": report.model_dump(mode="json"),
+            "report": privacy.mask(report.model_dump(mode="json")),
             "validation_error": "",
         }
 
-    except Exception as exc:
+    except PrivacyError:
+        raise
+
+    except Exception:
         return {
             "status": "VERIFYING",
             "report": None,
-            "validation_error": str(exc),
+            "validation_error": "Report generation failed",
         }
 
 
 def verify(
     state: InvestigationState,
     model,
+    privacy: CasePrivacy | None = None,
 ) -> dict:
-    """Verify citations and retry generation at most once."""
+    """Verify citations and retry once if needed."""
+    if privacy is None:
+        privacy = CasePrivacy()
+
     if state["status"] == "INSUFFICIENT_EVIDENCE":
         return {}
 
@@ -400,8 +518,8 @@ def verify(
                 "validation_error": "",
             }
 
-        except Exception as exc:
-            error = str(exc)
+        except Exception:
+            error = "Report validation failed"
 
             if attempt == 1:
                 break
@@ -409,14 +527,18 @@ def verify(
             try:
                 report = generate_report(
                     model,
-                    state["alert"],
-                    state["evidence"],
+                    privacy.mask(state["alert"]),
+                    privacy.mask(state["evidence"]),
                     feedback=error,
                 )
-                report_data = report.model_dump(mode="json")
 
-            except Exception as retry_exc:
-                error = str(retry_exc)
+                report_data = privacy.mask(report.model_dump(mode="json"))
+
+            except PrivacyError:
+                raise
+
+            except Exception:
+                error = "Report retry failed"
                 break
 
     return {
@@ -426,8 +548,14 @@ def verify(
     }
 
 
-def save(state: InvestigationState) -> dict:
-    """Persist the report and available tool trace."""
+def save(
+    state: InvestigationState,
+    privacy: CasePrivacy | None = None,
+) -> dict:
+    """Persist masked evidence and tool traces."""
+    if privacy is None:
+        privacy = CasePrivacy()
+
     trace = []
 
     for message in state["messages"]:
@@ -436,7 +564,7 @@ def save(state: InvestigationState) -> dict:
                 trace.append(
                     {
                         "tool": call["name"],
-                        "arguments": call["args"],
+                        "arguments": privacy.mask(call["args"]),
                         "tool_call_id": call["id"],
                     }
                 )
@@ -445,14 +573,14 @@ def save(state: InvestigationState) -> dict:
             trace.append(
                 {
                     "tool_call_id": message.tool_call_id,
-                    "result": message.content,
+                    "result": privacy.mask(message.content),
                 }
             )
 
     trace_record = {
         "recorded_at": datetime.now(timezone.utc).isoformat(),
         "events": trace,
-        "evidence": state["evidence"],
+        "evidence": privacy.mask(state["evidence"]),
     }
 
     final_status = (
@@ -460,6 +588,9 @@ def save(state: InvestigationState) -> dict:
     )
 
     report_data = state.get("report")
+
+    if report_data is not None:
+        report_data = privacy.mask(report_data)
 
     with psycopg.connect(CASE_DATABASE_URL) as connection:
         with connection.cursor() as cursor:
@@ -505,7 +636,7 @@ def build_graph(
     model=None,
     report_model=None,
 ):
-    """Compile the investigation and reporting graph."""
+    """Compile one graph with one private privacy context."""
     if model is None:
         model = create_model()
 
@@ -514,62 +645,46 @@ def build_graph(
 
     prompt = PROMPT_PATH.read_text(encoding="utf-8")
 
+    privacy = CasePrivacy()
     builder = StateGraph(InvestigationState)
 
     builder.add_node(
         "load_alert",
-        load_alert,
+        lambda state: load_alert(state, privacy),
     )
 
     builder.add_node(
         "investigate",
-        lambda state: investigate(
-            state,
-            model,
-            prompt,
-        ),
+        lambda state: investigate(state, model, prompt, privacy),
     )
 
     builder.add_node(
         "tools",
-        execute_tools,
+        lambda state: execute_tools(state, privacy),
     )
 
     builder.add_node(
         "ensure_typology",
-        ensure_typology,
+        lambda state: ensure_typology(state, privacy),
     )
 
     builder.add_node(
         "assess",
-        lambda state: assess(
-            state,
-            report_model,
-        ),
+        lambda state: assess(state, report_model, privacy),
     )
 
     builder.add_node(
         "verify",
-        lambda state: verify(
-            state,
-            report_model,
-        ),
+        lambda state: verify(state, report_model, privacy),
     )
 
     builder.add_node(
         "save",
-        save,
+        lambda state: save(state, privacy),
     )
 
-    builder.add_edge(
-        START,
-        "load_alert",
-    )
-
-    builder.add_edge(
-        "load_alert",
-        "investigate",
-    )
+    builder.add_edge(START, "load_alert")
+    builder.add_edge("load_alert", "investigate")
 
     builder.add_conditional_edges(
         "investigate",
@@ -589,33 +704,15 @@ def build_graph(
         },
     )
 
-    builder.add_edge(
-        "ensure_typology",
-        "assess",
-    )
-
-    builder.add_edge(
-        "assess",
-        "verify",
-    )
-
-    builder.add_edge(
-        "verify",
-        "save",
-    )
-
-    builder.add_edge(
-        "save",
-        END,
-    )
+    builder.add_edge("ensure_typology", "assess")
+    builder.add_edge("assess", "verify")
+    builder.add_edge("verify", "save")
+    builder.add_edge("save", END)
 
     return builder.compile()
 
 
-def initial_state(
-    alert_id: int,
-) -> InvestigationState:
-    """Create the initial investigation state."""
+def initial_state(alert_id: int) -> InvestigationState:
     return {
         "alert_id": alert_id,
         "alert": {},

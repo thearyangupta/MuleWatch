@@ -19,10 +19,6 @@ def get_account_profile(account_id: str) -> dict | None:
                     a.id AS account_id,
                     a.opened_at,
                     c.id AS customer_id,
-                    c.name,
-                    c.email,
-                    c.phone,
-                    c.address,
                     c.occupation
                 FROM accounts AS a
                 JOIN customers AS c
@@ -31,7 +27,6 @@ def get_account_profile(account_id: str) -> dict | None:
                 """,
                 (account_id,),
             )
-
             return cursor.fetchone()
 
 
@@ -67,8 +62,7 @@ def get_transactions(
                     receiver_account_id,
                     transaction_type,
                     amount,
-                    timestamp,
-                    is_fraud
+                    timestamp
                 FROM transactions
                 WHERE (
                     sender_account_id = %s

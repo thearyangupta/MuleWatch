@@ -33,12 +33,7 @@ def seeded_database(monkeypatch):
             cursor.executemany(
                 """
                 INSERT INTO customers (
-                    id,
-                    name,
-                    email,
-                    phone,
-                    address,
-                    occupation
+                    id, name, email, phone, address, occupation
                 )
                 VALUES (%s, %s, %s, %s, %s, %s)
                 """,
@@ -73,16 +68,26 @@ def seeded_database(monkeypatch):
             cursor.executemany(
                 """
                 INSERT INTO accounts (
-                    id,
-                    customer_id,
-                    opened_at
+                    id, customer_id, opened_at
                 )
                 VALUES (%s, %s, %s)
                 """,
                 [
-                    ("ACC_A", 1, datetime(2025, 1, 1, tzinfo=UTC)),
-                    ("ACC_B", 2, datetime(2025, 2, 1, tzinfo=UTC)),
-                    ("ACC_C", 3, datetime(2025, 3, 1, tzinfo=UTC)),
+                    (
+                        "ACC_A",
+                        1,
+                        datetime(2025, 1, 1, tzinfo=UTC),
+                    ),
+                    (
+                        "ACC_B",
+                        2,
+                        datetime(2025, 2, 1, tzinfo=UTC),
+                    ),
+                    (
+                        "ACC_C",
+                        3,
+                        datetime(2025, 3, 1, tzinfo=UTC),
+                    ),
                 ],
             )
 
@@ -135,8 +140,10 @@ def test_get_account_profile(seeded_database):
     assert profile is not None
     assert profile["account_id"] == "ACC_A"
     assert profile["customer_id"] == 1
-    assert profile["name"] == "Alice Test"
     assert profile["occupation"] == "Analyst"
+
+    for key in ("name", "email", "phone", "address"):
+        assert key not in profile
 
 
 def test_get_transactions(seeded_database):
@@ -147,6 +154,9 @@ def test_get_transactions(seeded_database):
     transaction_ids = {transaction["id"] for transaction in transactions}
 
     assert len(transaction_ids) == 3
+
+    for transaction in transactions:
+        assert "is_fraud" not in transaction
 
 
 def test_get_counterparties(seeded_database):
@@ -164,5 +174,8 @@ def test_get_counterparties(seeded_database):
 
 
 def test_get_transactions_rejects_invalid_days(seeded_database):
-    with pytest.raises(ValueError, match="days must be greater than zero"):
+    with pytest.raises(
+        ValueError,
+        match="days must be greater than zero",
+    ):
         queries.get_transactions("ACC_A", days=0)

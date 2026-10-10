@@ -76,8 +76,6 @@ def get_account_activity(
     account_id: str,
     days: int = 30,
 ) -> EvidenceItem:
-    """Return a compact read-only activity profile for an account."""
-
     try:
         arguments = AccountActivityInput(
             account_id=account_id,
@@ -90,7 +88,7 @@ def get_account_activity(
             return _error_evidence(
                 source="get_account_activity",
                 error_type="account_not_found",
-                message=f"Account {arguments.account_id} was not found",
+                message="Account not found",
             )
 
         transactions = get_transactions(
@@ -134,9 +132,29 @@ def get_account_activity(
             reverse=True,
         )[:10]
 
+        account = {
+            key: profile[key]
+            for key in (
+                "account_id",
+                "opened_at",
+                "customer_id",
+                "occupation",
+            )
+            if key in profile
+        }
+
+        transaction_fields = (
+            "id",
+            "sender_account_id",
+            "receiver_account_id",
+            "transaction_type",
+            "amount",
+            "timestamp",
+        )
+
         data = {
             "ok": True,
-            "account": _serialise(profile),
+            "account": _serialise(account),
             "window_days": arguments.days,
             "total_incoming": total_incoming,
             "total_outgoing": total_outgoing,
@@ -146,16 +164,20 @@ def get_account_activity(
                 _serialise(counterparty) for counterparty in counterparties[:10]
             ],
             "largest_transactions": [
-                _serialise(transaction) for transaction in largest_transactions
+                _serialise(
+                    {
+                        key: transaction[key]
+                        for key in transaction_fields
+                        if key in transaction
+                    }
+                )
+                for transaction in largest_transactions
             ],
         }
 
         return create_evidence(
             source="get_account_activity",
-            summary=(
-                f"{arguments.days}-day activity profile "
-                f"for account {arguments.account_id}"
-            ),
+            summary=f"{arguments.days}-day account activity profile",
             data=data,
         )
 
@@ -163,15 +185,11 @@ def get_account_activity(
         return _error_evidence(
             source="get_account_activity",
             error_type=type(exc).__name__,
-            message=str(exc),
+            message="Account activity retrieval failed",
         )
 
 
-def score_account(
-    account_id: str,
-) -> EvidenceItem:
-    """Score an account using MuleWatch's existing scoring API."""
-
+def score_account(account_id: str) -> EvidenceItem:
     try:
         arguments = ScoreAccountInput(
             account_id=account_id,
@@ -179,14 +197,11 @@ def score_account(
 
         response = httpx.post(
             f"{SCORE_API_URL}/score",
-            json={
-                "account_id": arguments.account_id,
-            },
+            json={"account_id": arguments.account_id},
             timeout=10.0,
         )
 
         response.raise_for_status()
-
         result = response.json()
 
         data = {
@@ -199,11 +214,7 @@ def score_account(
 
         return create_evidence(
             source="score_account",
-            summary=(
-                f"Model score for account "
-                f"{arguments.account_id}: "
-                f"{result['risk_score']:.4f}"
-            ),
+            summary=(f"Model score retrieved: {result['risk_score']:.4f}"),
             data=data,
         )
 
@@ -218,19 +229,13 @@ def score_account(
         return _error_evidence(
             source="score_account",
             error_type=type(exc).__name__,
-            message=str(exc),
+            message="Scoring request failed",
         )
 
 
-def search_typologies(
-    query: str,
-) -> EvidenceItem:
-    """Search the typology knowledge base for relevant guidance."""
-
+def search_typologies(query: str) -> EvidenceItem:
     try:
-        arguments = SearchTypologiesInput(
-            query=query,
-        )
+        arguments = SearchTypologiesInput(query=query)
 
         results = hybrid_search(
             arguments.query,
@@ -253,9 +258,7 @@ def search_typologies(
 
         return create_evidence(
             source="search_typologies",
-            summary=(
-                f"Retrieved {len(chunks)} typology chunks for query: {arguments.query}"
-            ),
+            summary=f"Retrieved {len(chunks)} typology chunks",
             data={
                 "ok": True,
                 "query": arguments.query,
@@ -267,5 +270,5 @@ def search_typologies(
         return _error_evidence(
             source="search_typologies",
             error_type=type(exc).__name__,
-            message=str(exc),
+            message="Typology retrieval failed",
         )

@@ -3,6 +3,7 @@ name = "mulewatch"
 version = "0.1.0"
 description = "AI investigation copilot for money-mule alerts"
 requires-python = ">=3.14"
+
 dependencies = [
     "faker",
     "pandas",
@@ -14,6 +15,8 @@ dependencies = [
     "fastapi",
     "uvicorn",
     "httpx",
+    "presidio-analyzer",
+    "presidio-anonymizer",
 ]
 
 [tool.pytest.ini_options]
