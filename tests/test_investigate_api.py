@@ -104,7 +104,7 @@ class FakeConnection:
 
 
 def fake_connect(dsn, **kwargs):
-    return FakeConnection(write="mulewatch_readonly" not in dsn)
+    return FakeConnection(write="row_factory" not in kwargs)
 
 
 def test_investigate_endpoint():
