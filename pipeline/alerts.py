@@ -5,7 +5,6 @@ import pandas as pd
 import psycopg
 
 from pipeline.features import build_daily_feature_row
-from scoring.api import load_registered_model
 from scoring.train import FEATURE_COLUMNS, get_shap_reasons
 
 
@@ -163,6 +162,8 @@ def generate_daily_alerts(
     alert_budget: int = 50,
     model_version: str = "1",
 ) -> dict:
+    from scoring.api import load_registered_model
+
     model = load_registered_model()
 
     scored_accounts = score_accounts_for_date(
