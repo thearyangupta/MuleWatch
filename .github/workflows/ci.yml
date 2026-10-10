@@ -38,7 +38,7 @@ jobs:
       - name: Install project dependencies and development tools
         run: |
           python -m pip install --upgrade pip
-          python -m pip install -e .
+          python -m pip install faker pandas "pandera[pandas]" "psycopg[binary]" scikit-learn xgboost mlflow fastapi uvicorn httpx presidio-analyzer presidio-anonymizer
           python -m pip install pytest ruff pyyaml sentence-transformers pgvector requests beautifulsoup4 langchain langchain-core langgraph langchain-google-genai python-dotenv
           python -m spacy download en_core_web_lg
 
