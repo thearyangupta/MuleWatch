@@ -7,6 +7,7 @@ import httpx
 from pydantic import BaseModel, Field
 
 from agent.evidence import EvidenceItem, create_evidence
+from agent.injection import scan_evidence
 from db.queries import (
     get_account_profile,
     get_counterparties,
@@ -148,6 +149,7 @@ def get_account_activity(
             "sender_account_id",
             "receiver_account_id",
             "transaction_type",
+            "payment_reference",
             "amount",
             "timestamp",
         )
@@ -174,6 +176,7 @@ def get_account_activity(
                 for transaction in largest_transactions
             ],
         }
+        data.update(scan_evidence(data))
 
         return create_evidence(
             source="get_account_activity",
@@ -256,14 +259,17 @@ def search_typologies(query: str) -> EvidenceItem:
             for result in results
         ]
 
+        data = {
+            "ok": True,
+            "query": arguments.query,
+            "chunks": chunks,
+        }
+        data.update(scan_evidence(data))
+
         return create_evidence(
             source="search_typologies",
             summary=f"Retrieved {len(chunks)} typology chunks",
-            data={
-                "ok": True,
-                "query": arguments.query,
-                "chunks": chunks,
-            },
+            data=data,
         )
 
     except Exception as exc:

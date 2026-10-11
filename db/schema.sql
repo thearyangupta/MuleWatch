@@ -21,10 +21,13 @@ CREATE TABLE IF NOT EXISTS transactions (
     receiver_account_id TEXT NOT NULL REFERENCES accounts(id),
     source_transaction_id TEXT UNIQUE,
     transaction_type TEXT NOT NULL,
+    payment_reference TEXT,
     amount NUMERIC(18, 2) NOT NULL,
     timestamp TIMESTAMPTZ NOT NULL,
     is_fraud BOOLEAN NOT NULL DEFAULT FALSE
 );
+ALTER TABLE transactions
+    ADD COLUMN IF NOT EXISTS payment_reference TEXT;
 
 CREATE TABLE IF NOT EXISTS staging_transactions (
     source_transaction_id TEXT,
@@ -111,7 +114,6 @@ CREATE TABLE IF NOT EXISTS cases (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- Upgrade databases where the cases table already exists.
 ALTER TABLE cases
     ADD COLUMN IF NOT EXISTS report JSONB;
 

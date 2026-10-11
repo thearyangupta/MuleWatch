@@ -61,6 +61,7 @@ def get_transactions(
                     sender_account_id,
                     receiver_account_id,
                     transaction_type,
+                    payment_reference,
                     amount,
                     timestamp
                 FROM transactions

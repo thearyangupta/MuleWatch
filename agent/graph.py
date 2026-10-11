@@ -17,6 +17,7 @@ from langchain_core.tools import tool
 from langgraph.graph import END, START, StateGraph
 from psycopg.rows import dict_row
 
+from agent.injection import fence_untrusted_data, scan_evidence
 from agent.pii import CasePrivacy, PrivacyError
 from agent.report import CaseReport, generate_report
 from agent.state import InvestigationState
@@ -144,7 +145,7 @@ def load_alert(
             HumanMessage(
                 content=(
                     "Investigate this money-mule alert:\n"
-                    f"{json.dumps(safe_alert, default=str)}"
+                    + fence_untrusted_data(safe_alert)
                 )
             )
         ],
@@ -176,12 +177,10 @@ def _safe_model_messages(
             )
 
         elif isinstance(message, ToolMessage):
+            safe_data = privacy.mask(json.loads(message.content))
             safe_messages.append(
                 ToolMessage(
-                    content=json.dumps(
-                        privacy.mask(json.loads(message.content)),
-                        default=str,
-                    ),
+                    content=fence_untrusted_data(safe_data),
                     tool_call_id=message.tool_call_id,
                 )
             )
@@ -315,6 +314,9 @@ def execute_tools(
 
                 result = privacy.mask(json.loads(raw_result))
 
+                if isinstance(result, dict) and isinstance(result.get("data"), dict):
+                    result["data"].update(scan_evidence(result["data"]))
+
                 if "evidence_id" in result:
                     evidence_items.append(result)
 
@@ -415,6 +417,8 @@ def ensure_typology(
         evidence = search_typologies(query)
 
         result = privacy.mask(evidence.model_dump(mode="json"))
+        if isinstance(result.get("data"), dict):
+            result["data"].update(scan_evidence(result["data"]))
 
         succeeded = bool(
             result.get("data", {}).get("ok") and result.get("data", {}).get("chunks")

@@ -21,6 +21,11 @@ random.seed(RANDOM_SEED)
 fake = Faker("en_GB")
 
 
+def make_payment_reference(index: int) -> str:
+    """Generate an ordinary synthetic payment reference."""
+    return f"MW-PAY-{index:08d}"
+
+
 def load_paysim_sample(path: Path, sample_size: int) -> pd.DataFrame:
     chunk_sizes = [
         len(chunk)
@@ -112,7 +117,7 @@ def prepare_transactions(
 ) -> list[tuple]:
     rows = []
 
-    for row in transactions.itertuples(index=False):
+    for index, row in enumerate(transactions.itertuples(index=False), start=1):
         timestamp = BASE_TIMESTAMP + timedelta(hours=int(row.step))
 
         rows.append(
@@ -120,13 +125,12 @@ def prepare_transactions(
                 row.nameOrig,
                 row.nameDest,
                 row.type,
+                make_payment_reference(index),
                 float(row.amount),
                 timestamp,
                 bool(row.isFraud),
             )
         )
-
-    return rows
 
 
 def reset_database(connection: psycopg.Connection) -> None:
@@ -186,11 +190,12 @@ def seed_database(
                     sender_account_id,
                     receiver_account_id,
                     transaction_type,
+                    payment_reference,
                     amount,
                     timestamp,
                     is_fraud
                 )
-                VALUES (%s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s,%s)
                 """,
                 transactions,
             )
