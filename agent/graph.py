@@ -17,8 +17,10 @@ from langchain_core.tools import tool
 from langgraph.graph import END, START, StateGraph
 from psycopg.rows import dict_row
 
+from agent.fallback import insufficient_evidence, manual_review
 from agent.injection import fence_untrusted_data, scan_evidence
 from agent.pii import CasePrivacy, PrivacyError
+from agent.policy import validate_policy
 from agent.report import CaseReport, generate_report
 from agent.state import InvestigationState
 from agent.tools import (
@@ -455,14 +457,19 @@ def assess(
     model,
     privacy: CasePrivacy | None = None,
 ) -> dict:
-    """Generate the structured report from masked evidence."""
+    """Generate a structured report or safely abstain."""
     if privacy is None:
         privacy = CasePrivacy()
 
     if not state["typology_checked"]:
+        fallback = insufficient_evidence(
+            "Required typology evidence was not retrieved."
+        )
+
         return {
-            "status": "INSUFFICIENT_EVIDENCE",
+            "status": fallback.status,
             "report": None,
+            "validation_error": fallback.reason,
         }
 
     try:
@@ -482,10 +489,12 @@ def assess(
         raise
 
     except Exception:
+        fallback = manual_review("Automated report generation failed.")
+
         return {
-            "status": "VERIFYING",
+            "status": fallback.status,
             "report": None,
-            "validation_error": "Report generation failed",
+            "validation_error": fallback.reason,
         }
 
 
@@ -494,11 +503,14 @@ def verify(
     model,
     privacy: CasePrivacy | None = None,
 ) -> dict:
-    """Verify citations and retry once if needed."""
+    """Verify citations and output policy, retrying once."""
     if privacy is None:
         privacy = CasePrivacy()
 
-    if state["status"] == "INSUFFICIENT_EVIDENCE":
+    if state["status"] in {
+        "INSUFFICIENT_EVIDENCE",
+        "NEEDS_MANUAL_REVIEW",
+    }:
         return {}
 
     report_data = state.get("report")
@@ -516,6 +528,11 @@ def verify(
                 state["evidence"],
             )
 
+            policy = validate_policy(report)
+
+            if not policy.passed:
+                raise ValueError("; ".join(policy.violations))
+
             return {
                 "report": report.model_dump(mode="json"),
                 "status": "VERIFIED",
@@ -523,7 +540,7 @@ def verify(
             }
 
         except Exception:
-            error = "Report validation failed"
+            error = "Report validation or policy check failed"
 
             if attempt == 1:
                 break
@@ -542,13 +559,20 @@ def verify(
                 raise
 
             except Exception:
-                error = "Report retry failed"
-                break
+                fallback = manual_review("Report regeneration failed.")
+
+                return {
+                    "status": fallback.status,
+                    "report": None,
+                    "validation_error": fallback.reason,
+                }
+
+    fallback = manual_review("Report failed citation or output-policy validation.")
 
     return {
-        "status": "INSUFFICIENT_EVIDENCE",
+        "status": fallback.status,
         "report": None,
-        "validation_error": error,
+        "validation_error": fallback.reason,
     }
 
 
@@ -587,9 +611,12 @@ def save(
         "evidence": privacy.mask(state["evidence"]),
     }
 
-    final_status = (
-        "COMPLETE" if state["status"] == "VERIFIED" else "INSUFFICIENT_EVIDENCE"
-    )
+    if state["status"] == "VERIFIED":
+        final_status = "COMPLETE"
+    elif state["status"] == "NEEDS_MANUAL_REVIEW":
+        final_status = "NEEDS_MANUAL_REVIEW"
+    else:
+        final_status = "INSUFFICIENT_EVIDENCE"
 
     report_data = state.get("report")
 
