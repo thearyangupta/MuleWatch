@@ -6,249 +6,169 @@
 ![Python](https://img.shields.io/badge/python-3.14-blue)
 ![Data](https://img.shields.io/badge/data-synthetic%20only-lightgrey)
 
-MuleWatch scores suspicious accounts, prioritizes alerts, and generates evidence-backed investigation reports for human analysts. It never takes action on accounts autonomously.
+MuleWatch detects suspicious account activity, prioritizes alerts, and generates evidence-backed investigation reports for human analysts.
 
-> ⚠️ **Synthetic data only.** Uses PaySim transactions and Faker-generated customer profiles.
-
----
+> **Synthetic data only.** Built using PaySim transactions and Faker-generated customer profiles. No autonomous account enforcement.
 
 ## Features
 
-- **Account behavior:** pass-through ratio, dwell time, fan-in/out, cash-out chains, velocity.
-- **Risk scoring:** XGBoost, MLflow versioning, SHAP explanations, and `POST /score`.
-- **Alert prioritization:** analyst-capacity-based queue with idempotent generation.
-- **AI investigations:** LangGraph agent with bounded, read-only tools and hybrid typology retrieval (pgvector + full-text search).
-- **Auditable reports:** structured findings, verified evidence references, PostgreSQL case and tool-trace storage.
-- **Quality checks:** fake-LLM tests, resumable evaluation runner, Ruff and pytest CI.
-
----
+- **Fraud detection:** XGBoost, SHAP explanations, MLflow tracking.
+- **Data pipeline:** Apache Airflow, PostgreSQL, idempotent processing.
+- **AI investigation:** LangGraph, read-only tools, pgvector RAG.
+- **Privacy:** Data minimization and Presidio PII masking.
+- **Security:** Prompt-injection detection and untrusted-data fencing.
+- **Reliability:** Citation validation, output policies, safe fallbacks.
+- **Human oversight:** LangGraph interrupts, PostgreSQL checkpointing, approve/override/escalate.
+- **Auditability:** Hash-chained audit events, integrity verification, case audit API.
 
 ## Architecture
 
 ```mermaid
 flowchart TD
-    A[PaySim + Faker] --> B[(PostgreSQL 17)]
-    B --> C[Account features]
-    C --> D[XGBoost + MLflow]
-    D --> E[FastAPI scoring + SHAP]
-    D --> F[Prioritized alerts]
-    F --> G[LangGraph investigator]
-    B --> H[Read-only account tools]
-    H --> G
-    I[Typology knowledge base + hybrid search] --> G
-    G --> J[Evidence-checked CaseReport]
-    J --> K[(Cases + tool traces)]
+    A[PaySim + Faker] --> B[(PostgreSQL)]
+    B --> C[Airflow Pipeline]
+    C --> D[XGBoost + SHAP]
+    D --> E[Risk Alerts]
+    E --> F[LangGraph Investigator]
+    B --> G[Read-only Tools + RAG]
+    G --> F
+    F --> H[Privacy + Injection Defenses]
+    H --> I[Structured CaseReport]
+    I --> J[Citation + Policy Checks]
+    J --> K{Valid?}
+    K -->|Yes| L[Human Review]
+    K -->|No| M[Safe Fallback]
+    L --> N[Final Decision]
+    F --> O[(Hash-Chained Audit Log)]
+    J --> O
+    N --> O
 ```
 
----
+## Technology Stack
 
-## Daily Airflow pipeline
+| Layer | Technology |
+|---|---|
+| Language | Python 3.14 |
+| Database | PostgreSQL 17 + pgvector |
+| ML | XGBoost, scikit-learn, SHAP |
+| Tracking | MLflow |
+| Pipeline | Apache Airflow |
+| AI Agent | LangGraph, LangChain |
+| API | FastAPI |
+| Privacy | Microsoft Presidio |
+| Testing | pytest, Ruff, GitHub Actions |
 
-The `mulewatch_daily` DAG processes each logical date with PostgreSQL-backed intermediate results.
+## Investigation Workflow
 
-```mermaid
-flowchart LR
-    A[ingest] --> B[validate] --> C[features] --> D[score] --> E[alerts] --> F[report]
-    B --> Q[(Quarantine)]
-    D --> API[FastAPI /score/batch]
-```
+1. Load a risk alert and pseudonymize sensitive data.
+2. Collect evidence using read-only tools and typology retrieval.
+3. Generate a structured `CaseReport`.
+4. Validate evidence citations and output policies.
+5. Pause for human review using LangGraph `interrupt()`.
+6. Resume with `Command(resume=...)` and save the final decision.
+7. Record investigation and review activity in the audit trail.
 
-### Start Airflow
+When evidence is insufficient or AI processing fails, MuleWatch uses safe fallback states instead of automatically closing the case.
+
+## Human Review API
+
+| Endpoint | Purpose |
+|---|---|
+| `POST /investigate/{alert_id}` | Start investigation |
+| `GET /cases?status=AWAITING_REVIEW` | Pending reviews |
+| `GET /cases/{id}` | Case details |
+| `POST /cases/{id}/decision` | Approve, override, escalate |
+| `GET /cases/{id}/audit` | Audit history |
+| `POST /score` | Risk scoring |
+
+Review and audit endpoints require `X-Review-API-Key`.
+
+## Security and Governance
+
+MuleWatch uses defense in depth:
+
+- PII masking before LLM calls.
+- Untrusted-data fencing and injection scanning.
+- Restricted tools and structured output schemas.
+- Evidence citation and policy validation.
+- Human approval for consequential decisions.
+- PostgreSQL audit records linked using SHA-256 hashes.
+
+**Prompt-injection evaluation:** 12 attacks; baseline decision changes: 1/12; defended decision changes: 0/12.
+
+Audit integrity verification:
 
 ```powershell
-docker compose -f airflow\docker-compose.yaml up -d
+python -m scripts.verify_audit
 ```
 
-Airflow UI: `http://localhost:8080`.
+Audit integration requires final end-to-end acceptance.
 
-### 30-day backfill
+See [AI System Card](docs/AI_SYSTEM_CARD.md) and [Failure Review](docs/FAILURES.md).
+
+## Getting Started
 
 ```powershell
-docker compose -f airflow\docker-compose.yaml exec airflow-scheduler `
-    airflow backfill create `
-    --dag-id mulewatch_daily `
-    --from-date 2026-01-01 `
-    --to-date 2026-01-30 `
-    --max-active-runs 1 `
-    --reprocess-behavior none
-```
+git clone https://github.com/thearyangupta/MuleWatch.git
+cd MuleWatch
 
-### Airflow Grid
-
-![MuleWatch Airflow Grid](docs/airflow-grid.png)
-
-### Backfill summary
-
-| Metric | Result |
-|---|---|
-| Date range | 2026-01-01 to 2026-01-30 |
-| Completed days / volume metrics | Pending verification |
-
----
-
-## Money-mule features
-
-| Feature | Signal |
-|---|---|
-| `pass_through_ratio` | Outgoing ÷ incoming funds |
-| `median_dwell_minutes` | Delay between incoming and outgoing payments |
-| `fan_in` / `fan_out` | Unique senders and recipients |
-| `transfer_cashout_chains` | Transfer followed by cash-out |
-| `velocity_ratio` | Activity relative to historical baseline |
-
-See [`docs/FEATURES.md`](docs/FEATURES.md).
-
----
-
-## Model
-
-| | |
-|---|---|
-| Algorithm | XGBoost; class-weighted |
-| Validation | Time-based 80/20 split |
-| Metric | PR-AUC |
-| Test PR-AUC | Not verified here |
-| Tracking | MLflow (`mulewatch-account-scoring`) |
-
----
-
-## Daily alerts
-
-Accounts are ranked by risk and selected up to the analyst alert budget. Each alert retains its account, date, score, model version, SHAP reasons and status. A unique `(account_id, alert_date)` constraint prevents duplicates.
-
----
-
-## Evidence-backed investigations
-
-```mermaid
-flowchart TD
-    A[Alert] --> B[LangGraph agent]
-    B --> C{More evidence needed?}
-    C -->|Yes, within limit| D[Investigation tools]
-    D --> B
-    C -->|No| E[Typology check + CaseReport]
-    E --> F[Verify citations]
-    F --> G[Save case and trace]
-```
-
-### Investigation tools
-
-| Tool | Purpose |
-|---|---|
-| `get_account_activity` | Account transaction summary |
-| `score_account` | Risk score and explanations |
-| `search_typologies` | Relevant guidance and citations |
-
-Tool inputs are typed, database queries are parameterized, and investigations have a step limit.
-
-### Case reports
-
-`CaseReport` includes a risk rating, recommended analyst action, findings with evidence IDs, typology matches, open questions and confidence. Citation verification checks references, **not** whether every claim is factually correct. Reports and tool traces are stored in PostgreSQL.
-
-### Evaluation and review
-
-```powershell
-python -m evals.run_alert                 # Dry run; no model calls
-python -m evals.run_alert --max-new 1     # One new investigation
-```
-
-Results: `evals/results/alert_results.csv` and `.json`; manual findings: [`docs/FAILURES.md`](docs/FAILURES.md). Two live cases were completed in the recorded checkpoint; broader evaluation and manual review were still pending.
-
----
-
-## Getting started
-
-### Prerequisites
-
-- Python 3.14+, Docker Compose.
-- [PaySim dataset](https://www.kaggle.com/datasets/ealaxi/paysim1) at `data/raw/PS_20174392719_1491204439457_log.csv`.
-
-### 1. Install
-
-```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -e .
-```
 
-### 2. Start PostgreSQL and apply the schema
-
-```powershell
 docker compose up -d postgres
-Get-Content db\schema.sql | docker compose exec -T postgres psql -U mulewatch -d mulewatch
-Get-Content db\roles.sql | docker compose exec -T postgres psql -U mulewatch -d mulewatch
 ```
 
-### 3. Seed the database and train the model
+Apply database schemas and migrations as documented in `db/`, then initialize the LangGraph checkpointer.
+
+Start the API:
 
 ```powershell
-python pipeline/seed.py
-python scoring/train.py
+$env:MULEWATCH_REVIEW_API_KEY = "your-local-test-key"
+python -m uvicorn scoring.api:app --host 127.0.0.1 --port 8000
 ```
 
-### 4. Start the API
+API documentation: http://127.0.0.1:8000/docs
 
-```powershell
-docker compose up -d --build
-```
-
-API docs: `http://127.0.0.1:8000/docs`.
-
----
-
-## Usage
-
-### Score an account
-
-```powershell
-$body = @{ account_id = "C1436118706" } | ConvertTo-Json
-Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8000/score" -ContentType "application/json" -Body $body
-```
-
-Returns a risk score, model version and top SHAP reasons; these are not proof of fraud.
-
-### Investigate an alert
-
-```powershell
-Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8000/investigate/1"
-```
-
-Requires a configured model provider (for example, `GOOGLE_API_KEY` in an untracked `.env`).
-
----
+Configure your LLM provider credentials in an untracked `.env` file.
 
 ## Testing
 
 ```powershell
 python -m ruff check .
-python -m pytest -q
+python -m ruff format --check .
+python -m pytest tests --ignore=tests/test_dag_integrity.py -q
+python -m scripts.verify_audit
 ```
 
-GitHub Actions runs Ruff and pytest with PostgreSQL 17.
+Airflow integration tests require their separate runtime.
 
----
-
-## Project structure
+## Project Structure
 
 ```text
-mulewatch/
-├── agent/              # LangGraph investigation workflow
-├── api/                # Investigation endpoint
-├── db/                 # PostgreSQL schema and roles
-├── pipeline/           # Ingestion, features and alerts
-├── scoring/            # Model and scoring API
-├── evals/              # Investigation evaluation runner
-├── docs/               # Features and review notes
-├── tests/              # Automated tests
-├── airflow/            # Daily orchestration
-├── .github/workflows/  # CI
-└── pyproject.toml
+MuleWatch/
+├── agent/       # LangGraph, policies, audit
+├── api/         # Investigation and review endpoints
+├── scoring/     # XGBoost and FastAPI
+├── pipeline/    # Data processing
+├── airflow/     # Scheduled workflows
+├── rag/         # Typology retrieval
+├── db/          # Database schemas
+├── evals/       # Agent evaluations
+├── scripts/     # Setup and verification
+├── tests/       # Automated tests
+└── docs/        # Governance and documentation
 ```
-
----
 
 ## Limitations
 
-- **Synthetic data and proxy labels:** PaySim fraud flags are not real-world money-mule ground truth.
-- **Evidence limitations:** Valid citations do not guarantee correct interpretation.
-- **Human oversight:** For research and demonstration only; no autonomous account enforcement.
+- Synthetic data does not represent real banking conditions.
+- Risk scores and evidence citations do not prove criminal activity.
+- Prompt-injection defenses are not guaranteed to stop every attack.
+- Human review is required for final decisions.
+- Hash chaining is tamper-evident, not fully tamper-proof.
+- Production deployment requires additional security and compliance validation.
+
+## License
+
+License not yet specified.

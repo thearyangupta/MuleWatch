@@ -18,6 +18,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.types import interrupt
 from psycopg.rows import dict_row
 
+from agent.audit import append_audit_event
 from agent.fallback import insufficient_evidence, manual_review
 from agent.injection import fence_untrusted_data, scan_evidence
 from agent.pii import CasePrivacy, PrivacyError
@@ -582,6 +583,109 @@ def verify(
     }
 
 
+def write_investigation_audit(cursor, state: InvestigationState) -> None:
+    """Record the saved investigation's ordered, privacy-safe history."""
+    case_id = state["case_id"]
+
+    append_audit_event(
+        cursor,
+        case_id=case_id,
+        actor="system",
+        action="INVESTIGATION_STARTED",
+        details={
+            "alert_id": state["alert_id"],
+            "thread_id": state.get("thread_id"),
+        },
+    )
+
+    append_audit_event(
+        cursor,
+        case_id=case_id,
+        actor="system",
+        action="ALERT_LOADED",
+        details={
+            "alert_id": state["alert_id"],
+            "scoring_model_version": state["alert"].get("model_version"),
+        },
+    )
+
+    for message in state["messages"]:
+        if isinstance(message, AIMessage):
+            usage = message.usage_metadata or {}
+
+            append_audit_event(
+                cursor,
+                case_id=case_id,
+                actor="agent",
+                action="LLM_CALLED",
+                details={
+                    "model": MODEL_NAME,
+                    "prompt_version": PROMPT_PATH.name,
+                    "input_tokens": usage.get("input_tokens", 0),
+                    "output_tokens": usage.get("output_tokens", 0),
+                    "tool_calls": len(message.tool_calls),
+                },
+            )
+
+            for call in message.tool_calls:
+                append_audit_event(
+                    cursor,
+                    case_id=case_id,
+                    actor="agent",
+                    action="TOOL_REQUESTED",
+                    details={
+                        "tool": call["name"],
+                        "tool_call_id": call["id"],
+                        # Avoid persisting raw tool arguments.
+                        "argument_names": sorted(call["args"].keys()),
+                    },
+                )
+
+        elif isinstance(message, ToolMessage):
+            append_audit_event(
+                cursor,
+                case_id=case_id,
+                actor="tool",
+                action="TOOL_RESULT",
+                details={
+                    "tool_call_id": message.tool_call_id,
+                    # Never persist the raw result.
+                    "result_recorded": True,
+                },
+            )
+
+    append_audit_event(
+        cursor,
+        case_id=case_id,
+        actor="agent",
+        action="INVESTIGATION_ASSESSED",
+        details={
+            "status": state["status"],
+            "steps_taken": state["steps_taken"],
+            "typology_checked": state["typology_checked"],
+            "input_tokens_total": state["input_tokens"],
+            "output_tokens_total": state["output_tokens"],
+            "estimated_cost_usd": state["estimated_cost_usd"],
+        },
+    )
+
+    append_audit_event(
+        cursor,
+        case_id=case_id,
+        actor="system",
+        action="POLICY_CHECK_RESULT",
+        details={
+            "passed": state["status"] == "VERIFIED",
+            "outcome": state["status"],
+            "note": (
+                "Verified output accepted"
+                if state["status"] == "VERIFIED"
+                else "Investigation requires fallback or review"
+            ),
+        },
+    )
+
+
 def save(
     state: InvestigationState,
     privacy: CasePrivacy | None = None,
@@ -669,6 +773,30 @@ def save(
 
             case_id = cursor.fetchone()[0]
 
+            audit_state = {
+                **state,
+                "case_id": case_id,
+            }
+
+            write_investigation_audit(
+                cursor,
+                audit_state,
+            )
+
+            append_audit_event(
+                cursor,
+                case_id=case_id,
+                actor="system",
+                action="CASE_SAVED",
+                details={
+                    "status": final_status,
+                    "agent_action": (
+                        report_data.get("recommended_action") if report_data else None
+                    ),
+                    "human_review_required": (final_status == "AWAITING_REVIEW"),
+                },
+            )
+
     return {
         "status": final_status,
         "case_id": case_id,
@@ -753,6 +881,33 @@ def finalize_review(state: InvestigationState) -> dict:
             row = cursor.fetchone()
             if row is None:
                 raise ValueError("Case was already reviewed or checkpoint mismatch")
+
+            append_audit_event(
+                cursor,
+                case_id=state["case_id"],
+                actor=state["reviewer_id"],
+                action="HUMAN_DECISION_RECORDED",
+                details={
+                    "decision": decision["decision"],
+                    "agent_action": state["report"]["recommended_action"],
+                    "final_action": state["final_action"],
+                    "final_status": state["status"],
+                    "agreement": state["agreement"],
+                    "reviewer_id": state["reviewer_id"],
+                    "comment_recorded": bool(state["reviewer_comment"]),
+                },
+            )
+
+            append_audit_event(
+                cursor,
+                case_id=state["case_id"],
+                actor="system",
+                action="CASE_FINALIZED",
+                details={
+                    "status": state["status"],
+                    "final_action": state["final_action"],
+                },
+            )
 
     return {"case_id": row[0]}
 

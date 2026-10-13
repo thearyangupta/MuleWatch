@@ -25,3 +25,83 @@ The evidence may support suspicious incoming activity, but it does not establish
 - Determine whether the report accurately describes the observed transaction pattern.
 - Review whether escalation would be more appropriate.
 - Preserve this case as a candidate failure example for the guardrails.
+
+
+---
+
+# Week 4 — Guardrail and Governance Follow-up
+
+## Previously observed investigation issues
+
+### Under-escalation — MITIGATED, NOT PROVEN FIXED
+
+The earlier Case 2 / Alert 177 investigation
+recommended ENHANCED_MONITORING despite significant
+risk indicators.
+
+Human review now allows analysts to override the
+recommendation or escalate the case.
+
+The underlying recommendation quality still requires
+evaluation. Human oversight mitigates the consequence;
+it does not correct the model's reasoning.
+
+### Typology overgeneralization — OPEN
+
+A money-mule typology was associated with evidence
+that did not clearly demonstrate rapid pass-through.
+
+Citation and policy validation improve report quality,
+but do not guarantee semantic correctness.
+
+Required follow-up:
+- Verify transaction evidence against the source data.
+- Evaluate typology precision.
+- Measure unsupported factual claims.
+
+### Prompt injection — MITIGATED
+
+A 12-case attack set was evaluated.
+
+Baseline decision changes: 1/12.
+Defended decision changes: 0/12.
+
+The result is limited to the tested examples.
+
+### Unsafe output — MITIGATED
+
+Code-level policy checks reject selected unsupported,
+contradictory, discriminatory, or inappropriate output.
+
+### LLM failure — MITIGATED
+
+Safe fallback states prevent an unavailable or failed
+LLM from automatically producing a no-action closure.
+
+### Missing human oversight — FIXED FOR TESTED FLOW
+
+LangGraph interrupts pause verified cases for review.
+
+Approve, override, and escalate paths were accepted
+through the local API.
+
+Duplicate decisions were rejected with HTTP 409.
+
+### Missing tamper-evident audit — IMPLEMENTED;
+LIVE ACCEPTANCE PENDING
+
+A hash-chained audit writer, database safeguards,
+verification script, and case audit endpoint have
+been added.
+
+Mark this fully accepted only after database and
+end-to-end API tests pass.
+
+## Remaining work
+
+- Broader model-quality evaluation
+- Full process-restart recovery acceptance
+- Independent audit anchoring
+- Production-grade reviewer identity and authorization
+- Semantic validation of evidence-backed claims
+- Security review before any real-data deployment
