@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from agent.graph import build_graph, initial_state
 from agent.report import CaseReport
+from api.cases import start_review_investigation
 
 router = APIRouter()
 
@@ -18,7 +18,12 @@ class InvestigationResponse(BaseModel):
     response_model=InvestigationResponse,
 )
 def investigate_alert(alert_id: int) -> InvestigationResponse:
-    """Run an investigation and return its persisted case."""
+    """
+    Start an investigation with human-in-the-loop review.
+
+    A successfully verified investigation pauses at
+    AWAITING_REVIEW instead of completing automatically.
+    """
 
     if alert_id < 1:
         raise HTTPException(
@@ -26,20 +31,10 @@ def investigate_alert(alert_id: int) -> InvestigationResponse:
             detail="alert_id must be positive",
         )
 
-    try:
-        graph = build_graph()
-        result = graph.invoke(initial_state(alert_id))
-
-    except ValueError as exc:
-        if str(exc) == f"Alert {alert_id} not found":
-            raise HTTPException(
-                status_code=404,
-                detail="Alert not found",
-            ) from exc
-        raise
+    result = start_review_investigation(alert_id)
 
     return InvestigationResponse(
-        case_id=result["case_id"],
-        status=result["status"],
-        report=result.get("report"),
+        case_id=result.case_id,
+        status=result.status,
+        report=result.report,
     )

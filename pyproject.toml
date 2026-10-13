@@ -17,6 +17,7 @@ dependencies = [
     "httpx",
     "presidio-analyzer",
     "presidio-anonymizer",
+    "langgraph-checkpoint-postgres>=3.1,<4",
 ]
 
 [tool.pytest.ini_options]
@@ -29,3 +30,8 @@ line-length = 88
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["agent*", "api*", "scoring*", "pipeline*", "rag*"]
+namespaces = true

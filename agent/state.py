@@ -18,3 +18,10 @@ class InvestigationState(TypedDict):
     estimated_cost_usd: float
     validation_error: NotRequired[str]
     case_id: NotRequired[int]
+    thread_id: NotRequired[str]
+    human_review: NotRequired[bool]
+    review_decision: NotRequired[dict[str, Any]]
+    final_action: NotRequired[str]
+    reviewer_id: NotRequired[str]
+    reviewer_comment: NotRequired[str]
+    agreement: NotRequired[bool]

@@ -5,6 +5,7 @@ __pycache__/
 .ruff_cache/
 .env
 .env.*
+*.egg-info/
 notes-learning/
 data/
 # Local MLflow tracking data

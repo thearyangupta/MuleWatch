@@ -15,6 +15,7 @@ from langchain_core.messages import (
 )
 from langchain_core.tools import tool
 from langgraph.graph import END, START, StateGraph
+from langgraph.types import interrupt
 from psycopg.rows import dict_row
 
 from agent.fallback import insufficient_evidence, manual_review
@@ -23,6 +24,11 @@ from agent.pii import CasePrivacy, PrivacyError
 from agent.policy import validate_policy
 from agent.report import CaseReport, generate_report
 from agent.state import InvestigationState
+from agent.state_machine import (
+    ReviewDecision,
+    outcome_status,
+    validate_transition,
+)
 from agent.tools import (
     get_account_activity,
     score_account,
@@ -612,7 +618,7 @@ def save(
     }
 
     if state["status"] == "VERIFIED":
-        final_status = "COMPLETE"
+        final_status = "AWAITING_REVIEW" if state.get("human_review") else "COMPLETE"
     elif state["status"] == "NEEDS_MANUAL_REVIEW":
         final_status = "NEEDS_MANUAL_REVIEW"
     else:
@@ -632,14 +638,18 @@ def save(
                     status,
                     summary,
                     report,
-                    tool_trace
+                    tool_trace,
+                    thread_id,
+                    agent_action
                 )
                 VALUES (
                     %s,
                     %s,
                     %s,
                     %s::jsonb,
-                    %s::jsonb
+                    %s::jsonb,
+                    %s,
+                    %s
                 )
                 RETURNING id
                 """,
@@ -652,6 +662,8 @@ def save(
                         trace_record,
                         default=str,
                     ),
+                    state.get("thread_id"),
+                    (report_data.get("recommended_action") if report_data else None),
                 ),
             )
 
@@ -663,9 +675,93 @@ def save(
     }
 
 
+def route_after_save(
+    state: InvestigationState,
+) -> Literal["review", "end"]:
+    if state.get("human_review") and state["status"] == "AWAITING_REVIEW":
+        return "review"
+    return "end"
+
+
+def review(state: InvestigationState) -> dict:
+    """Pause until an authenticated reviewer submits a decision."""
+    if state["status"] != "AWAITING_REVIEW":
+        raise ValueError("Case is not awaiting review")
+
+    payload = interrupt(
+        {
+            "case_id": state["case_id"],
+            "report": state["report"],
+            "agent_action": state["report"]["recommended_action"],
+        }
+    )
+
+    decision = ReviewDecision.model_validate(payload)
+    agent_action = CaseReport.model_validate(state["report"]).recommended_action
+
+    final_action = decision.resolved_action(agent_action)
+    final_status = outcome_status(final_action)
+
+    validate_transition("AWAITING_REVIEW", final_status)
+
+    return {
+        "review_decision": decision.model_dump(mode="json"),
+        "final_action": final_action.value,
+        "reviewer_id": decision.reviewer_id,
+        "reviewer_comment": decision.comment,
+        "agreement": final_action == agent_action,
+        "status": final_status,
+    }
+
+
+def finalize_review(state: InvestigationState) -> dict:
+    """Persist the human outcome; never replace the AI report."""
+    decision = state.get("review_decision")
+    if not decision:
+        raise ValueError("Missing human review decision")
+
+    with psycopg.connect(CASE_DATABASE_URL) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE cases
+                SET
+                    status = %s,
+                    final_action = %s,
+                    review_decision = %s,
+                    reviewer_id = %s,
+                    reviewer_comment = %s,
+                    agreement = %s,
+                    reviewed_at = NOW(),
+                    updated_at = NOW()
+                WHERE id = %s
+                  AND status = 'AWAITING_REVIEW'
+                  AND thread_id = %s
+                RETURNING id
+                """,
+                (
+                    state["status"],
+                    state["final_action"],
+                    decision["decision"],
+                    state["reviewer_id"],
+                    state["reviewer_comment"],
+                    state["agreement"],
+                    state["case_id"],
+                    state["thread_id"],
+                ),
+            )
+            row = cursor.fetchone()
+            if row is None:
+                raise ValueError("Case was already reviewed or checkpoint mismatch")
+
+    return {"case_id": row[0]}
+
+
 def build_graph(
     model=None,
     report_model=None,
+    checkpointer=None,
+    human_review: bool = False,
 ):
     """Compile one graph with one private privacy context."""
     if model is None:
@@ -738,12 +834,37 @@ def build_graph(
     builder.add_edge("ensure_typology", "assess")
     builder.add_edge("assess", "verify")
     builder.add_edge("verify", "save")
-    builder.add_edge("save", END)
 
-    return builder.compile()
+    if human_review:
+        if checkpointer is None:
+            raise ValueError("Human review requires a persistent checkpointer")
+
+        builder.add_node("review", review)
+        builder.add_node("finalize_review", finalize_review)
+
+        builder.add_conditional_edges(
+            "save",
+            route_after_save,
+            {
+                "review": "review",
+                "end": END,
+            },
+        )
+
+        builder.add_edge("review", "finalize_review")
+        builder.add_edge("finalize_review", END)
+    else:
+        builder.add_edge("save", END)
+
+    return builder.compile(checkpointer=checkpointer)
 
 
-def initial_state(alert_id: int) -> InvestigationState:
+def initial_state(
+    alert_id: int,
+    *,
+    thread_id: str | None = None,
+    human_review: bool = False,
+) -> InvestigationState:
     return {
         "alert_id": alert_id,
         "alert": {},
@@ -754,6 +875,8 @@ def initial_state(alert_id: int) -> InvestigationState:
         "typology_checked": False,
         "report": None,
         "status": "PENDING",
+        "thread_id": thread_id,
+        "human_review": human_review,
         "input_tokens": 0,
         "output_tokens": 0,
         "estimated_cost_usd": 0.0,

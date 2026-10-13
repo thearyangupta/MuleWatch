@@ -108,38 +108,25 @@ def fake_connect(dsn, **kwargs):
 
 
 def test_investigate_endpoint():
-    with (
-        patch(
-            "agent.graph.psycopg.connect",
-            side_effect=fake_connect,
-        ),
-        patch(
-            "agent.graph.search_typologies",
-            return_value=fake_evidence,
-        ),
-        patch(
-            "agent.graph.generate_report",
-            return_value=fake_report,
-        ),
-        patch(
-            "api.investigate.build_graph",
-            side_effect=lambda: __import__(
-                "agent.graph",
-                fromlist=["build_graph"],
-            ).build_graph(
-                model=FakeModel(),
-                report_model=FakeReportModel(),
-            ),
-        ),
+    from api.cases import StartInvestigationResponse
+
+    expected = StartInvestigationResponse(
+        case_id=101,
+        status="AWAITING_REVIEW",
+        report=fake_report.model_dump(mode="json"),
+    )
+
+    with patch(
+        "api.investigate.start_review_investigation",
+        return_value=expected,
     ):
         response = TestClient(app).post("/investigate/1")
 
     assert response.status_code == 200
 
     body = response.json()
-
     assert body["case_id"] == 101
-    assert body["status"] == "COMPLETE"
+    assert body["status"] == "AWAITING_REVIEW"
     assert body["report"]["risk_rating"] == "MEDIUM"
     assert body["report"]["recommended_action"] == "ENHANCED_MONITORING"
 
