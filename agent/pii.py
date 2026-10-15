@@ -27,6 +27,15 @@ _PHONE_WITH_EXTENSION = re.compile(
 )
 
 
+_PHONE_NUMBER = re.compile(
+    r"(?<!\w)"
+    r"(?:(?:\+|00)1[\s.\-]?)?"
+    r"(?:\(\d{3}\)|\d{3})[\s.\-]?"
+    r"\d{3}[\s.\-]?\d{4}"
+    r"(?!\w)",
+)
+
+
 class PrivacyError(RuntimeError):
     pass
 
@@ -87,6 +96,7 @@ class CasePrivacy:
                     text = text.replace(original, token)
 
             text = _PHONE_WITH_EXTENSION.sub("[REDACTED_PII]", text)
+            text = _PHONE_NUMBER.sub("[REDACTED_PII]", text)
 
             results = self.analyzer.analyze(
                 text=text,
