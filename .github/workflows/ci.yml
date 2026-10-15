@@ -25,6 +25,7 @@ jobs:
 
     env:
       MULEWATCH_DATABASE_URL: postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch_test
+      MULEWATCH_CHECKPOINT_DATABASE_URL: postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch_test
 
     steps:
       - name: Checkout repository
@@ -53,6 +54,11 @@ jobs:
 
       - name: Build typology knowledge base
         run: python rag/ingest.py
+
+      - name: Initialize LangGraph checkpoint tables
+        env:
+          MULEWATCH_CHECKPOINT_DATABASE_URL: postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch_test
+        run: python -c "from agent.review_runtime import initialize_checkpointer; initialize_checkpointer()"
 
       - name: Run Ruff
         run: ruff check .
