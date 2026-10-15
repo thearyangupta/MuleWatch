@@ -1,0 +1,17 @@
+{
+  "all_pending_human_review": true,
+  "constructed_count": 5,
+  "created_at_utc": "2026-10-15T12:03:11.311887+00:00",
+  "cross_day_account_count_in_raw_data": 13,
+  "database": "mulewatch",
+  "database_alert_count": 30,
+  "files_sha256": {
+    "LABELLING_GUIDE.md": "186ab1b7e00e46c113ea47917405b389e74345def677e19e61480c683b6d9e15",
+    "golden_set.yaml": "edb073ed170bc910a2ac497ea3ebf162b35df0edcb946745af4cd84c9c8a25f3",
+    "snapshot/constructed_scenarios.json": "6566497653e3d84527cfef665a41339add6471f2f04a791ed664d4e243b0ca82",
+    "snapshot/database_evidence.json": "f37df2f1352b534d7559a79c96353f420be1059cc58ed71c117bd9ba93145e91",
+    "snapshot/typology_chunks.json": "aec89c92eb15b2246ffcf4540dd83716d06fd2f9db4c3fdb2ea6291a4600c918"
+  },
+  "schema_version": 1,
+  "snapshot_kind": "read_only_json_evidence_subset_not_database_restore"
+}

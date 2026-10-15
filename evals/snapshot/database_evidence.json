@@ -1,0 +1,2144 @@
+{
+  "cases": {
+    "1": {
+      "alert": {
+        "account_id": "C1810440109",
+        "alert_date": "2026-01-10",
+        "id": 1,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 1.8334362506866455,
+            "value": 4.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": 1.3927329778671265,
+            "value": 3361.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.24118109047412872,
+            "value": 2.0
+          }
+        ],
+        "risk_score": 0.951851487159729,
+        "status": "NEW",
+        "threshold": 0.8505988717079163
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 3361,
+        "account_id": "C1810440109",
+        "fan_in": 2,
+        "fan_out": 0,
+        "feature_date": "2026-01-10",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 4.0
+      },
+      "transactions": [
+        {
+          "amount": "466359.63",
+          "id": 332799,
+          "is_fraud": true,
+          "receiver_account_id": "C1810440109",
+          "sender_account_id": "C1868920588",
+          "timestamp": "2026-01-05T20:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "466359.63",
+          "id": 33346,
+          "is_fraud": true,
+          "receiver_account_id": "C1810440109",
+          "sender_account_id": "C1868920588",
+          "timestamp": "2026-01-05T21:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "107927.05",
+          "id": 208010,
+          "is_fraud": false,
+          "receiver_account_id": "C1810440109",
+          "sender_account_id": "C833328207",
+          "timestamp": "2026-01-10T10:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "107927.05",
+          "id": 90146,
+          "is_fraud": false,
+          "receiver_account_id": "C1810440109",
+          "sender_account_id": "C833328207",
+          "timestamp": "2026-01-10T11:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "149738.77",
+          "id": 206749,
+          "is_fraud": false,
+          "receiver_account_id": "C1810440109",
+          "sender_account_id": "C2135727004",
+          "timestamp": "2026-01-10T14:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "149738.77",
+          "id": 93912,
+          "is_fraud": false,
+          "receiver_account_id": "C1810440109",
+          "sender_account_id": "C2135727004",
+          "timestamp": "2026-01-10T15:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        }
+      ]
+    },
+    "1012": {
+      "alert": {
+        "account_id": "C1491207389",
+        "alert_date": "2026-01-27",
+        "id": 1012,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "account_age_days",
+            "shap_value": 0.3497859835624695,
+            "value": 2473.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": 0.12273164093494415,
+            "value": 1.0
+          },
+          {
+            "feature": "velocity_ratio",
+            "shap_value": -0.054960545152425766,
+            "value": 0.0
+          }
+        ],
+        "risk_score": 0.6026899814605713,
+        "status": "NEW",
+        "threshold": 0.596377968788147
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 2473,
+        "account_id": "C1491207389",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-27",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 0.0
+      },
+      "transactions": [
+        {
+          "amount": "383983.21",
+          "id": 429455,
+          "is_fraud": false,
+          "receiver_account_id": "C1491207389",
+          "sender_account_id": "C1582258077",
+          "timestamp": "2026-01-27T12:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "383983.21",
+          "id": 197234,
+          "is_fraud": false,
+          "receiver_account_id": "C1491207389",
+          "sender_account_id": "C1582258077",
+          "timestamp": "2026-01-27T13:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        }
+      ]
+    },
+    "1013": {
+      "alert": {
+        "account_id": "C1580675902",
+        "alert_date": "2026-01-27",
+        "id": 1013,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "account_age_days",
+            "shap_value": 0.3497859835624695,
+            "value": 2469.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": 0.12273164093494415,
+            "value": 1.0
+          },
+          {
+            "feature": "velocity_ratio",
+            "shap_value": -0.054960545152425766,
+            "value": 0.0
+          }
+        ],
+        "risk_score": 0.6026899814605713,
+        "status": "NEW",
+        "threshold": 0.596377968788147
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 2469,
+        "account_id": "C1580675902",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-27",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 0.0
+      },
+      "transactions": [
+        {
+          "amount": "314994.42",
+          "id": 429614,
+          "is_fraud": false,
+          "receiver_account_id": "C1580675902",
+          "sender_account_id": "C1151770455",
+          "timestamp": "2026-01-27T12:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "314994.42",
+          "id": 197221,
+          "is_fraud": false,
+          "receiver_account_id": "C1580675902",
+          "sender_account_id": "C1151770455",
+          "timestamp": "2026-01-27T13:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        }
+      ]
+    },
+    "1014": {
+      "alert": {
+        "account_id": "C1973086500",
+        "alert_date": "2026-01-27",
+        "id": 1014,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "account_age_days",
+            "shap_value": 0.5582562685012817,
+            "value": 1324.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.10027508437633514,
+            "value": 0.0
+          },
+          {
+            "feature": "velocity_ratio",
+            "shap_value": -0.05439489334821701,
+            "value": 0.0
+          }
+        ],
+        "risk_score": 0.5993397235870361,
+        "status": "NEW",
+        "threshold": 0.596377968788147
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 1324,
+        "account_id": "C1973086500",
+        "fan_in": 0,
+        "fan_out": 1,
+        "feature_date": "2026-01-27",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 0.0
+      },
+      "transactions": [
+        {
+          "amount": "16912.50",
+          "id": 429432,
+          "is_fraud": false,
+          "receiver_account_id": "C446581022",
+          "sender_account_id": "C1973086500",
+          "timestamp": "2026-01-27T15:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "16912.50",
+          "id": 197320,
+          "is_fraud": false,
+          "receiver_account_id": "C446581022",
+          "sender_account_id": "C1973086500",
+          "timestamp": "2026-01-27T16:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        }
+      ]
+    },
+    "1015": {
+      "alert": {
+        "account_id": "C2104025546",
+        "alert_date": "2026-01-27",
+        "id": 1015,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "account_age_days",
+            "shap_value": 0.6014272570610046,
+            "value": 2749.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.15001381933689117,
+            "value": 0.0
+          },
+          {
+            "feature": "velocity_ratio",
+            "shap_value": -0.054898858070373535,
+            "value": 0.0
+          }
+        ],
+        "risk_score": 0.5976404547691345,
+        "status": "NEW",
+        "threshold": 0.596377968788147
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 2749,
+        "account_id": "C2104025546",
+        "fan_in": 0,
+        "fan_out": 1,
+        "feature_date": "2026-01-27",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 0.0
+      },
+      "transactions": [
+        {
+          "amount": "14555.31",
+          "id": 429387,
+          "is_fraud": false,
+          "receiver_account_id": "C449317666",
+          "sender_account_id": "C2104025546",
+          "timestamp": "2026-01-27T12:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "14555.31",
+          "id": 197286,
+          "is_fraud": false,
+          "receiver_account_id": "C449317666",
+          "sender_account_id": "C2104025546",
+          "timestamp": "2026-01-27T13:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        }
+      ]
+    },
+    "1016": {
+      "alert": {
+        "account_id": "C158270099",
+        "alert_date": "2026-01-27",
+        "id": 1016,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "account_age_days",
+            "shap_value": 0.33327430486679077,
+            "value": 2611.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": 0.11037638783454895,
+            "value": 1.0
+          },
+          {
+            "feature": "velocity_ratio",
+            "shap_value": -0.05238394811749458,
+            "value": 0.0
+          }
+        ],
+        "risk_score": 0.596377968788147,
+        "status": "NEW",
+        "threshold": 0.596377968788147
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 2611,
+        "account_id": "C158270099",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-27",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 0.0
+      },
+      "transactions": [
+        {
+          "amount": "227204.45",
+          "id": 429573,
+          "is_fraud": false,
+          "receiver_account_id": "C158270099",
+          "sender_account_id": "C1104914074",
+          "timestamp": "2026-01-27T12:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "227204.45",
+          "id": 197237,
+          "is_fraud": false,
+          "receiver_account_id": "C158270099",
+          "sender_account_id": "C1104914074",
+          "timestamp": "2026-01-27T13:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        }
+      ]
+    },
+    "151": {
+      "alert": {
+        "account_id": "C592994624",
+        "alert_date": "2026-01-11",
+        "id": 151,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 1.2491016387939453,
+            "value": 1.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": 1.0105646848678589,
+            "value": 1773.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": 0.15329311788082123,
+            "value": 0.0
+          }
+        ],
+        "risk_score": 0.9177443981170654,
+        "status": "NEW",
+        "threshold": 0.8505988717079163
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 1773,
+        "account_id": "C592994624",
+        "fan_in": 0,
+        "fan_out": 1,
+        "feature_date": "2026-01-11",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 1.0
+      },
+      "transactions": [
+        {
+          "amount": "35250.78",
+          "id": 232551,
+          "is_fraud": false,
+          "receiver_account_id": "M60603198",
+          "sender_account_id": "C592994624",
+          "timestamp": "2026-01-10T23:00:00+00:00",
+          "transaction_type": "PAYMENT"
+        },
+        {
+          "amount": "35250.78",
+          "id": 100281,
+          "is_fraud": false,
+          "receiver_account_id": "M60603198",
+          "sender_account_id": "C592994624",
+          "timestamp": "2026-01-11T00:00:00+00:00",
+          "transaction_type": "PAYMENT"
+        }
+      ]
+    },
+    "152": {
+      "alert": {
+        "account_id": "C642595786",
+        "alert_date": "2026-01-11",
+        "id": 152,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 1.2491016387939453,
+            "value": 1.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": 1.0105646848678589,
+            "value": 1768.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": 0.15329311788082123,
+            "value": 0.0
+          }
+        ],
+        "risk_score": 0.9177443981170654,
+        "status": "NEW",
+        "threshold": 0.8505988717079163
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 1768,
+        "account_id": "C642595786",
+        "fan_in": 0,
+        "fan_out": 1,
+        "feature_date": "2026-01-11",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 1.0
+      },
+      "transactions": [
+        {
+          "amount": "142001.88",
+          "id": 236583,
+          "is_fraud": false,
+          "receiver_account_id": "C1967352757",
+          "sender_account_id": "C642595786",
+          "timestamp": "2026-01-10T23:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "142001.88",
+          "id": 100264,
+          "is_fraud": false,
+          "receiver_account_id": "C1967352757",
+          "sender_account_id": "C642595786",
+          "timestamp": "2026-01-11T00:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        }
+      ]
+    },
+    "177": {
+      "alert": {
+        "account_id": "C523904186",
+        "alert_date": "2026-01-11",
+        "id": 177,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 2.0527865886688232,
+            "value": 2.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.13325701653957367,
+            "value": 1.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": 0.048008278012275696,
+            "value": 3136.0
+          }
+        ],
+        "risk_score": 0.8772526383399963,
+        "status": "NEW",
+        "threshold": 0.8505988717079163
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 3136,
+        "account_id": "C523904186",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-11",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 2.0
+      },
+      "transactions": [
+        {
+          "amount": "143252.61",
+          "id": 331123,
+          "is_fraud": false,
+          "receiver_account_id": "C523904186",
+          "sender_account_id": "C2065137110",
+          "timestamp": "2026-01-02T10:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "143252.61",
+          "id": 20153,
+          "is_fraud": false,
+          "receiver_account_id": "C523904186",
+          "sender_account_id": "C2065137110",
+          "timestamp": "2026-01-02T11:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "319887.08",
+          "id": 87553,
+          "is_fraud": true,
+          "receiver_account_id": "C523904186",
+          "sender_account_id": "C765034168",
+          "timestamp": "2026-01-09T23:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "210650.84",
+          "id": 291974,
+          "is_fraud": false,
+          "receiver_account_id": "C523904186",
+          "sender_account_id": "C347673703",
+          "timestamp": "2026-01-11T08:00:00+00:00",
+          "transaction_type": "TRANSFER"
+        },
+        {
+          "amount": "210650.84",
+          "id": 100445,
+          "is_fraud": false,
+          "receiver_account_id": "C523904186",
+          "sender_account_id": "C347673703",
+          "timestamp": "2026-01-11T09:00:00+00:00",
+          "transaction_type": "TRANSFER"
+        }
+      ]
+    },
+    "181": {
+      "alert": {
+        "account_id": "C1895906770",
+        "alert_date": "2026-01-11",
+        "id": 181,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 1.945144772529602,
+            "value": 2.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.13325701653957367,
+            "value": 1.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": 0.1091914176940918,
+            "value": 3040.0
+          }
+        ],
+        "risk_score": 0.8721615672111511,
+        "status": "NEW",
+        "threshold": 0.8505988717079163
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 3040,
+        "account_id": "C1895906770",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-11",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 2.0
+      },
+      "transactions": [
+        {
+          "amount": "22733.07",
+          "id": 303002,
+          "is_fraud": false,
+          "receiver_account_id": "M63844352",
+          "sender_account_id": "C1895906770",
+          "timestamp": "2026-01-01T17:00:00+00:00",
+          "transaction_type": "PAYMENT"
+        },
+        {
+          "amount": "22733.07",
+          "id": 13607,
+          "is_fraud": false,
+          "receiver_account_id": "M63844352",
+          "sender_account_id": "C1895906770",
+          "timestamp": "2026-01-01T18:00:00+00:00",
+          "transaction_type": "PAYMENT"
+        },
+        {
+          "amount": "31956.29",
+          "id": 290531,
+          "is_fraud": false,
+          "receiver_account_id": "C1895906770",
+          "sender_account_id": "C848689476",
+          "timestamp": "2026-01-11T08:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "31956.29",
+          "id": 101028,
+          "is_fraud": false,
+          "receiver_account_id": "C1895906770",
+          "sender_account_id": "C848689476",
+          "timestamp": "2026-01-11T09:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        }
+      ]
+    },
+    "2": {
+      "alert": {
+        "account_id": "C1015906751",
+        "alert_date": "2026-01-10",
+        "id": 2,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 2.207355499267578,
+            "value": 2.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": 0.22185105085372925,
+            "value": 3192.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.072360560297966,
+            "value": 1.0
+          }
+        ],
+        "risk_score": 0.9134079217910767,
+        "status": "NEW",
+        "threshold": 0.8505988717079163
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 3192,
+        "account_id": "C1015906751",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-10",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 2.0
+      },
+      "transactions": [
+        {
+          "amount": "42795.67",
+          "id": 67080,
+          "is_fraud": false,
+          "receiver_account_id": "C1015906751",
+          "sender_account_id": "C1061315841",
+          "timestamp": "2026-01-08T16:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "105268.96",
+          "id": 205037,
+          "is_fraud": false,
+          "receiver_account_id": "C1015906751",
+          "sender_account_id": "C416794552",
+          "timestamp": "2026-01-10T09:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "105268.96",
+          "id": 89455,
+          "is_fraud": false,
+          "receiver_account_id": "C1015906751",
+          "sender_account_id": "C416794552",
+          "timestamp": "2026-01-10T10:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        }
+      ]
+    },
+    "201": {
+      "alert": {
+        "account_id": "C1685211953",
+        "alert_date": "2026-01-03",
+        "id": 201,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 1.2491016387939453,
+            "value": 1.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": 1.0105646848678589,
+            "value": 1776.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": 0.15329311788082123,
+            "value": 0.0
+          }
+        ],
+        "risk_score": 0.9177443981170654,
+        "status": "NEW",
+        "threshold": 0.7675957083702087
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 1776,
+        "account_id": "C1685211953",
+        "fan_in": 0,
+        "fan_out": 1,
+        "feature_date": "2026-01-03",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 1.0
+      },
+      "transactions": [
+        {
+          "amount": "325398.62",
+          "id": 320035,
+          "is_fraud": false,
+          "receiver_account_id": "C749186348",
+          "sender_account_id": "C1685211953",
+          "timestamp": "2026-01-02T23:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "325398.62",
+          "id": 32216,
+          "is_fraud": false,
+          "receiver_account_id": "C749186348",
+          "sender_account_id": "C1685211953",
+          "timestamp": "2026-01-03T00:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        }
+      ]
+    },
+    "253": {
+      "alert": {
+        "account_id": "C183849466",
+        "alert_date": "2026-01-04",
+        "id": 253,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "account_age_days",
+            "shap_value": 1.2005653381347656,
+            "value": 3365.0
+          },
+          {
+            "feature": "velocity_ratio",
+            "shap_value": -0.03061887063086033,
+            "value": 0.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": 0.02497819997370243,
+            "value": 0.0
+          }
+        ],
+        "risk_score": 0.7674651741981506,
+        "status": "NEW",
+        "threshold": 0.6546779274940491
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 3365,
+        "account_id": "C183849466",
+        "fan_in": 0,
+        "fan_out": 1,
+        "feature_date": "2026-01-04",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 0.0
+      },
+      "transactions": [
+        {
+          "amount": "114339.10",
+          "id": 332305,
+          "is_fraud": true,
+          "receiver_account_id": "C1798936808",
+          "sender_account_id": "C183849466",
+          "timestamp": "2026-01-04T14:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "114339.10",
+          "id": 32419,
+          "is_fraud": true,
+          "receiver_account_id": "C1798936808",
+          "sender_account_id": "C183849466",
+          "timestamp": "2026-01-04T15:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        }
+      ]
+    },
+    "272": {
+      "alert": {
+        "account_id": "C1798936808",
+        "alert_date": "2026-01-04",
+        "id": 272,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "account_age_days",
+            "shap_value": 0.7198999524116516,
+            "value": 1691.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": 0.10087013244628906,
+            "value": 1.0
+          },
+          {
+            "feature": "velocity_ratio",
+            "shap_value": -0.049830202013254166,
+            "value": 0.0
+          }
+        ],
+        "risk_score": 0.6835357546806335,
+        "status": "NEW",
+        "threshold": 0.6546779274940491
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 1691,
+        "account_id": "C1798936808",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-04",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 0.0
+      },
+      "transactions": [
+        {
+          "amount": "114339.10",
+          "id": 332305,
+          "is_fraud": true,
+          "receiver_account_id": "C1798936808",
+          "sender_account_id": "C183849466",
+          "timestamp": "2026-01-04T14:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "114339.10",
+          "id": 32419,
+          "is_fraud": true,
+          "receiver_account_id": "C1798936808",
+          "sender_account_id": "C183849466",
+          "timestamp": "2026-01-04T15:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "349077.44",
+          "id": 201647,
+          "is_fraud": false,
+          "receiver_account_id": "C1798936808",
+          "sender_account_id": "C168777547",
+          "timestamp": "2026-01-10T12:00:00+00:00",
+          "transaction_type": "TRANSFER"
+        },
+        {
+          "amount": "349077.44",
+          "id": 92172,
+          "is_fraud": false,
+          "receiver_account_id": "C1798936808",
+          "sender_account_id": "C168777547",
+          "timestamp": "2026-01-10T13:00:00+00:00",
+          "transaction_type": "TRANSFER"
+        }
+      ]
+    },
+    "3": {
+      "alert": {
+        "account_id": "C1103590679",
+        "alert_date": "2026-01-10",
+        "id": 3,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 2.207355499267578,
+            "value": 2.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": 0.22185105085372925,
+            "value": 3199.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.072360560297966,
+            "value": 1.0
+          }
+        ],
+        "risk_score": 0.9134079217910767,
+        "status": "NEW",
+        "threshold": 0.8505988717079163
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 3199,
+        "account_id": "C1103590679",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-10",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 2.0
+      },
+      "transactions": [
+        {
+          "amount": "260868.51",
+          "id": 86737,
+          "is_fraud": false,
+          "receiver_account_id": "C1103590679",
+          "sender_account_id": "C1984044966",
+          "timestamp": "2026-01-09T21:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "242206.52",
+          "id": 205231,
+          "is_fraud": false,
+          "receiver_account_id": "C1103590679",
+          "sender_account_id": "C1643678195",
+          "timestamp": "2026-01-10T08:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "242206.52",
+          "id": 88075,
+          "is_fraud": false,
+          "receiver_account_id": "C1103590679",
+          "sender_account_id": "C1643678195",
+          "timestamp": "2026-01-10T09:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        }
+      ]
+    },
+    "301": {
+      "alert": {
+        "account_id": "C761661966",
+        "alert_date": "2026-01-05",
+        "id": 301,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 1.2491016387939453,
+            "value": 1.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": 1.0105646848678589,
+            "value": 1773.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": 0.15329311788082123,
+            "value": 0.0
+          }
+        ],
+        "risk_score": 0.9177443981170654,
+        "status": "NEW",
+        "threshold": 0.774528980255127
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 1773,
+        "account_id": "C761661966",
+        "fan_in": 0,
+        "fan_out": 1,
+        "feature_date": "2026-01-05",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 1.0
+      },
+      "transactions": [
+        {
+          "amount": "5554.32",
+          "id": 332100,
+          "is_fraud": false,
+          "receiver_account_id": "M769107945",
+          "sender_account_id": "C761661966",
+          "timestamp": "2026-01-04T23:00:00+00:00",
+          "transaction_type": "PAYMENT"
+        },
+        {
+          "amount": "5554.32",
+          "id": 33267,
+          "is_fraud": false,
+          "receiver_account_id": "M769107945",
+          "sender_account_id": "C761661966",
+          "timestamp": "2026-01-05T00:00:00+00:00",
+          "transaction_type": "PAYMENT"
+        }
+      ]
+    },
+    "302": {
+      "alert": {
+        "account_id": "C78949724",
+        "alert_date": "2026-01-05",
+        "id": 302,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 1.2491016387939453,
+            "value": 1.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": 1.0105646848678589,
+            "value": 1786.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": 0.15329311788082123,
+            "value": 0.0
+          }
+        ],
+        "risk_score": 0.9177443981170654,
+        "status": "NEW",
+        "threshold": 0.774528980255127
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 1786,
+        "account_id": "C78949724",
+        "fan_in": 0,
+        "fan_out": 1,
+        "feature_date": "2026-01-05",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 1.0
+      },
+      "transactions": [
+        {
+          "amount": "5377.36",
+          "id": 332445,
+          "is_fraud": false,
+          "receiver_account_id": "M96174170",
+          "sender_account_id": "C78949724",
+          "timestamp": "2026-01-04T23:00:00+00:00",
+          "transaction_type": "PAYMENT"
+        },
+        {
+          "amount": "5377.36",
+          "id": 33316,
+          "is_fraud": false,
+          "receiver_account_id": "M96174170",
+          "sender_account_id": "C78949724",
+          "timestamp": "2026-01-05T00:00:00+00:00",
+          "transaction_type": "PAYMENT"
+        }
+      ]
+    },
+    "4": {
+      "alert": {
+        "account_id": "C1371544634",
+        "alert_date": "2026-01-10",
+        "id": 4,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 2.207355499267578,
+            "value": 2.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": 0.22185105085372925,
+            "value": 3199.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.072360560297966,
+            "value": 1.0
+          }
+        ],
+        "risk_score": 0.9134079217910767,
+        "status": "NEW",
+        "threshold": 0.8505988717079163
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 3199,
+        "account_id": "C1371544634",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-10",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 2.0
+      },
+      "transactions": [
+        {
+          "amount": "240216.17",
+          "id": 333801,
+          "is_fraud": false,
+          "receiver_account_id": "C1371544634",
+          "sender_account_id": "C1141198774",
+          "timestamp": "2026-01-06T12:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "240216.17",
+          "id": 38171,
+          "is_fraud": false,
+          "receiver_account_id": "C1371544634",
+          "sender_account_id": "C1141198774",
+          "timestamp": "2026-01-06T13:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "78179.18",
+          "id": 208634,
+          "is_fraud": false,
+          "receiver_account_id": "C1371544634",
+          "sender_account_id": "C1416163126",
+          "timestamp": "2026-01-10T08:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "78179.18",
+          "id": 88041,
+          "is_fraud": false,
+          "receiver_account_id": "C1371544634",
+          "sender_account_id": "C1416163126",
+          "timestamp": "2026-01-10T09:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        }
+      ]
+    },
+    "45": {
+      "alert": {
+        "account_id": "C105416824",
+        "alert_date": "2026-01-10",
+        "id": 45,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 1.9617315530776978,
+            "value": 2.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.13325701653957367,
+            "value": 1.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": -0.08829754590988159,
+            "value": 3130.0
+          }
+        ],
+        "risk_score": 0.8505988717079163,
+        "status": "NEW",
+        "threshold": 0.8505988717079163
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 3130,
+        "account_id": "C105416824",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-10",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 2.0
+      },
+      "transactions": [
+        {
+          "amount": "139845.65",
+          "id": 68538,
+          "is_fraud": false,
+          "receiver_account_id": "C105416824",
+          "sender_account_id": "C742712264",
+          "timestamp": "2026-01-08T17:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "580111.38",
+          "id": 201992,
+          "is_fraud": false,
+          "receiver_account_id": "C105416824",
+          "sender_account_id": "C103721692",
+          "timestamp": "2026-01-10T21:00:00+00:00",
+          "transaction_type": "TRANSFER"
+        },
+        {
+          "amount": "580111.38",
+          "id": 99860,
+          "is_fraud": false,
+          "receiver_account_id": "C105416824",
+          "sender_account_id": "C103721692",
+          "timestamp": "2026-01-10T22:00:00+00:00",
+          "transaction_type": "TRANSFER"
+        }
+      ]
+    },
+    "46": {
+      "alert": {
+        "account_id": "C1067413548",
+        "alert_date": "2026-01-10",
+        "id": 46,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 1.9617315530776978,
+            "value": 2.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.13325701653957367,
+            "value": 1.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": -0.08829754590988159,
+            "value": 3111.0
+          }
+        ],
+        "risk_score": 0.8505988717079163,
+        "status": "NEW",
+        "threshold": 0.8505988717079163
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 3111,
+        "account_id": "C1067413548",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-10",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 2.0
+      },
+      "transactions": [
+        {
+          "amount": "428356.37",
+          "id": 312542,
+          "is_fraud": false,
+          "receiver_account_id": "C1067413548",
+          "sender_account_id": "C1769614735",
+          "timestamp": "2026-01-01T13:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "428356.37",
+          "id": 7497,
+          "is_fraud": false,
+          "receiver_account_id": "C1067413548",
+          "sender_account_id": "C1769614735",
+          "timestamp": "2026-01-01T14:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "30713.23",
+          "id": 202053,
+          "is_fraud": false,
+          "receiver_account_id": "C1067413548",
+          "sender_account_id": "C1761918846",
+          "timestamp": "2026-01-10T13:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "30713.23",
+          "id": 92328,
+          "is_fraud": false,
+          "receiver_account_id": "C1067413548",
+          "sender_account_id": "C1761918846",
+          "timestamp": "2026-01-10T14:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        }
+      ]
+    },
+    "47": {
+      "alert": {
+        "account_id": "C1101639196",
+        "alert_date": "2026-01-10",
+        "id": 47,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 1.9617315530776978,
+            "value": 2.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.13325701653957367,
+            "value": 1.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": -0.08829754590988159,
+            "value": 3128.0
+          }
+        ],
+        "risk_score": 0.8505988717079163,
+        "status": "NEW",
+        "threshold": 0.8505988717079163
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 3128,
+        "account_id": "C1101639196",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-10",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 2.0
+      },
+      "transactions": [
+        {
+          "amount": "387108.10",
+          "id": 313928,
+          "is_fraud": false,
+          "receiver_account_id": "C1101639196",
+          "sender_account_id": "C848484058",
+          "timestamp": "2026-01-01T16:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "387108.10",
+          "id": 12293,
+          "is_fraud": false,
+          "receiver_account_id": "C1101639196",
+          "sender_account_id": "C848484058",
+          "timestamp": "2026-01-01T17:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "148451.53",
+          "id": 205779,
+          "is_fraud": false,
+          "receiver_account_id": "C1101639196",
+          "sender_account_id": "C1314094669",
+          "timestamp": "2026-01-10T00:00:00+00:00",
+          "transaction_type": "TRANSFER"
+        },
+        {
+          "amount": "148451.53",
+          "id": 87969,
+          "is_fraud": false,
+          "receiver_account_id": "C1101639196",
+          "sender_account_id": "C1314094669",
+          "timestamp": "2026-01-10T01:00:00+00:00",
+          "transaction_type": "TRANSFER"
+        }
+      ]
+    },
+    "48": {
+      "alert": {
+        "account_id": "C1594462359",
+        "alert_date": "2026-01-10",
+        "id": 48,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 1.9617315530776978,
+            "value": 2.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.13325701653957367,
+            "value": 1.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": -0.08829754590988159,
+            "value": 3110.0
+          }
+        ],
+        "risk_score": 0.8505988717079163,
+        "status": "NEW",
+        "threshold": 0.8505988717079163
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 3110,
+        "account_id": "C1594462359",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-10",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 2.0
+      },
+      "transactions": [
+        {
+          "amount": "85419.93",
+          "id": 75475,
+          "is_fraud": false,
+          "receiver_account_id": "C1594462359",
+          "sender_account_id": "C1320544715",
+          "timestamp": "2026-01-09T10:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "237773.53",
+          "id": 208441,
+          "is_fraud": false,
+          "receiver_account_id": "C1594462359",
+          "sender_account_id": "C1387648412",
+          "timestamp": "2026-01-10T18:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "237773.53",
+          "id": 97264,
+          "is_fraud": false,
+          "receiver_account_id": "C1594462359",
+          "sender_account_id": "C1387648412",
+          "timestamp": "2026-01-10T19:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        }
+      ]
+    },
+    "49": {
+      "alert": {
+        "account_id": "C1620573488",
+        "alert_date": "2026-01-10",
+        "id": 49,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 1.9617315530776978,
+            "value": 2.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.13325701653957367,
+            "value": 1.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": -0.08829754590988159,
+            "value": 3103.0
+          }
+        ],
+        "risk_score": 0.8505988717079163,
+        "status": "NEW",
+        "threshold": 0.8505988717079163
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 3103,
+        "account_id": "C1620573488",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-10",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 2.0
+      },
+      "transactions": [
+        {
+          "amount": "129634.72",
+          "id": 303156,
+          "is_fraud": false,
+          "receiver_account_id": "C1620573488",
+          "sender_account_id": "C862118469",
+          "timestamp": "2026-01-01T10:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "129634.72",
+          "id": 4367,
+          "is_fraud": false,
+          "receiver_account_id": "C1620573488",
+          "sender_account_id": "C862118469",
+          "timestamp": "2026-01-01T11:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "337258.79",
+          "id": 211881,
+          "is_fraud": false,
+          "receiver_account_id": "C1620573488",
+          "sender_account_id": "C976441943",
+          "timestamp": "2026-01-10T15:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "337258.79",
+          "id": 94725,
+          "is_fraud": false,
+          "receiver_account_id": "C1620573488",
+          "sender_account_id": "C976441943",
+          "timestamp": "2026-01-10T16:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        }
+      ]
+    },
+    "5": {
+      "alert": {
+        "account_id": "C1422643114",
+        "alert_date": "2026-01-10",
+        "id": 5,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 2.207355499267578,
+            "value": 2.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": 0.22185105085372925,
+            "value": 3196.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.072360560297966,
+            "value": 1.0
+          }
+        ],
+        "risk_score": 0.9134079217910767,
+        "status": "NEW",
+        "threshold": 0.8505988717079163
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 3196,
+        "account_id": "C1422643114",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-10",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 2.0
+      },
+      "transactions": [
+        {
+          "amount": "233138.46",
+          "id": 313117,
+          "is_fraud": false,
+          "receiver_account_id": "C1422643114",
+          "sender_account_id": "C1887642720",
+          "timestamp": "2026-01-01T16:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "233138.46",
+          "id": 11161,
+          "is_fraud": false,
+          "receiver_account_id": "C1422643114",
+          "sender_account_id": "C1887642720",
+          "timestamp": "2026-01-01T17:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "354210.93",
+          "id": 211086,
+          "is_fraud": false,
+          "receiver_account_id": "C1422643114",
+          "sender_account_id": "C1567021900",
+          "timestamp": "2026-01-10T18:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "354210.93",
+          "id": 96782,
+          "is_fraud": false,
+          "receiver_account_id": "C1422643114",
+          "sender_account_id": "C1567021900",
+          "timestamp": "2026-01-10T19:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        }
+      ]
+    },
+    "503": {
+      "alert": {
+        "account_id": "C1490141777",
+        "alert_date": "2026-01-14",
+        "id": 503,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 2.0250141620635986,
+            "value": 2.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": 0.5544784665107727,
+            "value": 3036.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.23443110287189484,
+            "value": 2.0
+          }
+        ],
+        "risk_score": 0.9124712944030762,
+        "status": "NEW",
+        "threshold": 0.7952699661254883
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 3036,
+        "account_id": "C1490141777",
+        "fan_in": 2,
+        "fan_out": 0,
+        "feature_date": "2026-01-14",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 2.0
+      },
+      "transactions": [
+        {
+          "amount": "400157.86",
+          "id": 331959,
+          "is_fraud": true,
+          "receiver_account_id": "C1490141777",
+          "sender_account_id": "C1591659035",
+          "timestamp": "2026-01-04T00:00:00+00:00",
+          "transaction_type": "TRANSFER"
+        },
+        {
+          "amount": "400157.86",
+          "id": 32415,
+          "is_fraud": true,
+          "receiver_account_id": "C1490141777",
+          "sender_account_id": "C1591659035",
+          "timestamp": "2026-01-04T01:00:00+00:00",
+          "transaction_type": "TRANSFER"
+        },
+        {
+          "amount": "218830.63",
+          "id": 387028,
+          "is_fraud": false,
+          "receiver_account_id": "C1490141777",
+          "sender_account_id": "C1197783651",
+          "timestamp": "2026-01-14T14:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "218830.63",
+          "id": 143272,
+          "is_fraud": false,
+          "receiver_account_id": "C1490141777",
+          "sender_account_id": "C1197783651",
+          "timestamp": "2026-01-14T15:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "307570.95",
+          "id": 389262,
+          "is_fraud": false,
+          "receiver_account_id": "C1490141777",
+          "sender_account_id": "C756669136",
+          "timestamp": "2026-01-14T15:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "307570.95",
+          "id": 144118,
+          "is_fraud": false,
+          "receiver_account_id": "C1490141777",
+          "sender_account_id": "C756669136",
+          "timestamp": "2026-01-14T16:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        }
+      ]
+    },
+    "597": {
+      "alert": {
+        "account_id": "C2094962524",
+        "alert_date": "2026-01-15",
+        "id": 597,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 1.073216438293457,
+            "value": 1.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": 0.28585174679756165,
+            "value": 1480.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": 0.10088018327951431,
+            "value": 0.0
+          }
+        ],
+        "risk_score": 0.8113914728164673,
+        "status": "NEW",
+        "threshold": 0.811167299747467
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 1480,
+        "account_id": "C2094962524",
+        "fan_in": 0,
+        "fan_out": 1,
+        "feature_date": "2026-01-15",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 1.0
+      },
+      "transactions": [
+        {
+          "amount": "4282.42",
+          "id": 394995,
+          "is_fraud": false,
+          "receiver_account_id": "C2094962524",
+          "sender_account_id": "C1820780452",
+          "timestamp": "2026-01-14T22:00:00+00:00",
+          "transaction_type": "DEBIT"
+        },
+        {
+          "amount": "4282.42",
+          "id": 150060,
+          "is_fraud": false,
+          "receiver_account_id": "C2094962524",
+          "sender_account_id": "C1820780452",
+          "timestamp": "2026-01-14T23:00:00+00:00",
+          "transaction_type": "DEBIT"
+        },
+        {
+          "amount": "134090.20",
+          "id": 397566,
+          "is_fraud": false,
+          "receiver_account_id": "C1448189821",
+          "sender_account_id": "C2094962524",
+          "timestamp": "2026-01-15T21:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "134090.20",
+          "id": 162371,
+          "is_fraud": false,
+          "receiver_account_id": "C1448189821",
+          "sender_account_id": "C2094962524",
+          "timestamp": "2026-01-15T22:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        }
+      ]
+    },
+    "6": {
+      "alert": {
+        "account_id": "C1641588223",
+        "alert_date": "2026-01-10",
+        "id": 6,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 2.207355499267578,
+            "value": 2.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": 0.22185105085372925,
+            "value": 3195.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.072360560297966,
+            "value": 1.0
+          }
+        ],
+        "risk_score": 0.9134079217910767,
+        "status": "NEW",
+        "threshold": 0.8505988717079163
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 3195,
+        "account_id": "C1641588223",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-10",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 2.0
+      },
+      "transactions": [
+        {
+          "amount": "362358.81",
+          "id": 330963,
+          "is_fraud": false,
+          "receiver_account_id": "C1641588223",
+          "sender_account_id": "C829189044",
+          "timestamp": "2026-01-02T13:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "362358.81",
+          "id": 23270,
+          "is_fraud": false,
+          "receiver_account_id": "C1641588223",
+          "sender_account_id": "C829189044",
+          "timestamp": "2026-01-02T14:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "325259.57",
+          "id": 66847,
+          "is_fraud": false,
+          "receiver_account_id": "C1641588223",
+          "sender_account_id": "C782591835",
+          "timestamp": "2026-01-08T15:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "306839.27",
+          "id": 208486,
+          "is_fraud": false,
+          "receiver_account_id": "C1641588223",
+          "sender_account_id": "C826925854",
+          "timestamp": "2026-01-10T11:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "306839.27",
+          "id": 91101,
+          "is_fraud": false,
+          "receiver_account_id": "C1641588223",
+          "sender_account_id": "C826925854",
+          "timestamp": "2026-01-10T12:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        }
+      ]
+    },
+    "7": {
+      "alert": {
+        "account_id": "C1651384621",
+        "alert_date": "2026-01-10",
+        "id": 7,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 2.207355499267578,
+            "value": 2.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": 0.22185105085372925,
+            "value": 3201.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.072360560297966,
+            "value": 1.0
+          }
+        ],
+        "risk_score": 0.9134079217910767,
+        "status": "NEW",
+        "threshold": 0.8505988717079163
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 3201,
+        "account_id": "C1651384621",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-10",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 2.0
+      },
+      "transactions": [
+        {
+          "amount": "1234155.54",
+          "id": 353090,
+          "is_fraud": false,
+          "receiver_account_id": "C1651384621",
+          "sender_account_id": "C1601655156",
+          "timestamp": "2026-01-07T14:00:00+00:00",
+          "transaction_type": "TRANSFER"
+        },
+        {
+          "amount": "1234155.54",
+          "id": 52661,
+          "is_fraud": false,
+          "receiver_account_id": "C1651384621",
+          "sender_account_id": "C1601655156",
+          "timestamp": "2026-01-07T15:00:00+00:00",
+          "transaction_type": "TRANSFER"
+        },
+        {
+          "amount": "121207.18",
+          "id": 211344,
+          "is_fraud": false,
+          "receiver_account_id": "C1651384621",
+          "sender_account_id": "C1744983844",
+          "timestamp": "2026-01-10T11:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        },
+        {
+          "amount": "121207.18",
+          "id": 91191,
+          "is_fraud": false,
+          "receiver_account_id": "C1651384621",
+          "sender_account_id": "C1744983844",
+          "timestamp": "2026-01-10T12:00:00+00:00",
+          "transaction_type": "CASH_IN"
+        }
+      ]
+    },
+    "8": {
+      "alert": {
+        "account_id": "C2071120293",
+        "alert_date": "2026-01-10",
+        "id": 8,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 2.207355499267578,
+            "value": 2.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": 0.22185105085372925,
+            "value": 3189.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.072360560297966,
+            "value": 1.0
+          }
+        ],
+        "risk_score": 0.9134079217910767,
+        "status": "NEW",
+        "threshold": 0.8505988717079163
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 3189,
+        "account_id": "C2071120293",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-10",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 2.0
+      },
+      "transactions": [
+        {
+          "amount": "31042.08",
+          "id": 300366,
+          "is_fraud": false,
+          "receiver_account_id": "C2071120293",
+          "sender_account_id": "C2083492153",
+          "timestamp": "2026-01-01T10:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "31042.08",
+          "id": 4360,
+          "is_fraud": false,
+          "receiver_account_id": "C2071120293",
+          "sender_account_id": "C2083492153",
+          "timestamp": "2026-01-01T11:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "131541.11",
+          "id": 327620,
+          "is_fraud": false,
+          "receiver_account_id": "C2071120293",
+          "sender_account_id": "C1255312975",
+          "timestamp": "2026-01-02T18:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "131541.11",
+          "id": 29217,
+          "is_fraud": false,
+          "receiver_account_id": "C2071120293",
+          "sender_account_id": "C1255312975",
+          "timestamp": "2026-01-02T19:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "486460.92",
+          "id": 204527,
+          "is_fraud": false,
+          "receiver_account_id": "C2071120293",
+          "sender_account_id": "C376621938",
+          "timestamp": "2026-01-10T15:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "486460.92",
+          "id": 94455,
+          "is_fraud": false,
+          "receiver_account_id": "C2071120293",
+          "sender_account_id": "C376621938",
+          "timestamp": "2026-01-10T16:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        }
+      ]
+    },
+    "9": {
+      "alert": {
+        "account_id": "C694067985",
+        "alert_date": "2026-01-10",
+        "id": 9,
+        "model_version": "1",
+        "reasons": [
+          {
+            "feature": "velocity_ratio",
+            "shap_value": 2.207355499267578,
+            "value": 2.0
+          },
+          {
+            "feature": "account_age_days",
+            "shap_value": 0.22185105085372925,
+            "value": 3201.0
+          },
+          {
+            "feature": "fan_in",
+            "shap_value": -0.072360560297966,
+            "value": 1.0
+          }
+        ],
+        "risk_score": 0.9134079217910767,
+        "status": "NEW",
+        "threshold": 0.8505988717079163
+      },
+      "latest_feature_on_or_before_alert": {
+        "account_age_days": 3201,
+        "account_id": "C694067985",
+        "fan_in": 1,
+        "fan_out": 0,
+        "feature_date": "2026-01-10",
+        "median_dwell_minutes": 0.0,
+        "pass_through_ratio": 0.0,
+        "transfer_cashout_chains": 0,
+        "velocity_ratio": 2.0
+      },
+      "transactions": [
+        {
+          "amount": "567833.93",
+          "id": 70908,
+          "is_fraud": false,
+          "receiver_account_id": "C694067985",
+          "sender_account_id": "C811945824",
+          "timestamp": "2026-01-08T19:00:00+00:00",
+          "transaction_type": "TRANSFER"
+        },
+        {
+          "amount": "197413.29",
+          "id": 204331,
+          "is_fraud": false,
+          "receiver_account_id": "C694067985",
+          "sender_account_id": "C1261860270",
+          "timestamp": "2026-01-10T14:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        },
+        {
+          "amount": "197413.29",
+          "id": 93852,
+          "is_fraud": false,
+          "receiver_account_id": "C694067985",
+          "sender_account_id": "C1261860270",
+          "timestamp": "2026-01-10T15:00:00+00:00",
+          "transaction_type": "CASH_OUT"
+        }
+      ]
+    }
+  },
+  "schema_version": 1
+}

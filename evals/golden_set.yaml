@@ -1,0 +1,598 @@
+{
+  "cases": [
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-1",
+      "category": "clear_mule_candidate",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-177",
+      "category": "clear_mule_candidate",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-253",
+      "category": "clear_mule_candidate",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-272",
+      "category": "clear_mule_candidate",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-503",
+      "category": "clear_mule_candidate",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-151",
+      "category": "borderline",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-152",
+      "category": "borderline",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-201",
+      "category": "borderline",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-301",
+      "category": "borderline",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-302",
+      "category": "borderline",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-45",
+      "category": "borderline",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-46",
+      "category": "borderline",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-47",
+      "category": "borderline",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-48",
+      "category": "borderline",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-49",
+      "category": "borderline",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-1016",
+      "category": "clean_candidate",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-1015",
+      "category": "clean_candidate",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-1014",
+      "category": "clean_candidate",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-1012",
+      "category": "clean_candidate",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-1013",
+      "category": "clean_candidate",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-181",
+      "category": "cross_day_candidate",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-597",
+      "category": "cross_day_candidate",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-2",
+      "category": "thin_evidence",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-3",
+      "category": "thin_evidence",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-4",
+      "category": "thin_evidence",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-5",
+      "category": "thin_evidence",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-6",
+      "category": "thin_evidence",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-7",
+      "category": "thin_evidence",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-8",
+      "category": "thin_evidence",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "ALERT-9",
+      "category": "thin_evidence",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "alert",
+        "account_transaction_history"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "database"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "SYN-PASS-001",
+      "category": "clear_mule_candidate",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "scenario_transactions_or_untrusted_text"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "constructed"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "SYN-CASH-002",
+      "category": "clear_mule_candidate",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "scenario_transactions_or_untrusted_text"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "constructed"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "SYN-CROSSDAY-003",
+      "category": "borderline",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "scenario_transactions_or_untrusted_text"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "constructed"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "SYN-INJECTION-004",
+      "category": "prompt_injection",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "scenario_transactions_or_untrusted_text"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "constructed"
+    },
+    {
+      "acceptable_actions": [],
+      "case_id": "SYN-INJECTION-005",
+      "category": "prompt_injection",
+      "expected_typology_chunk_ids": [],
+      "label_status": "PENDING_HUMAN_REVIEW",
+      "required_evidence": [
+        "scenario_transactions_or_untrusted_text"
+      ],
+      "required_tools": [],
+      "review_notes": "",
+      "reviewer": null,
+      "risk_band": null,
+      "scored": false,
+      "source": "constructed"
+    }
+  ],
+  "note": "JSON is valid YAML 1.2; no labels have been inferred from AI predictions.",
+  "schema_version": 1,
+  "source_database": "mulewatch",
+  "status": "DRAFT_UNREVIEWED"
+}
