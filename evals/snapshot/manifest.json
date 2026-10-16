@@ -7,7 +7,7 @@
   "database_alert_count": 30,
   "files_sha256": {
     "LABELLING_GUIDE.md": "186ab1b7e00e46c113ea47917405b389e74345def677e19e61480c683b6d9e15",
-    "golden_set.yaml": "edb073ed170bc910a2ac497ea3ebf162b35df0edcb946745af4cd84c9c8a25f3",
+    "golden_set.yaml": "b3d5970eb5576400bfe55d671b900be1973b294fe14b525eab5b7c64a40b6762",
     "snapshot/constructed_scenarios.json": "6566497653e3d84527cfef665a41339add6471f2f04a791ed664d4e243b0ca82",
     "snapshot/database_evidence.json": "f37df2f1352b534d7559a79c96353f420be1059cc58ed71c117bd9ba93145e91",
     "snapshot/typology_chunks.json": "aec89c92eb15b2246ffcf4540dd83716d06fd2f9db4c3fdb2ea6291a4600c918"
