@@ -18,6 +18,7 @@ dependencies = [
     "presidio-analyzer",
     "presidio-anonymizer",
     "langgraph-checkpoint-postgres>=3.1,<4",
+    "langfuse>=4,<5",
 ]
 
 [tool.pytest.ini_options]

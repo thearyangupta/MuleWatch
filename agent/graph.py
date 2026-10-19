@@ -13,6 +13,7 @@ from langchain_core.messages import (
     SystemMessage,
     ToolMessage,
 )
+from langchain_core.runnables import RunnableConfig
 from langchain_core.tools import tool
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import interrupt
@@ -262,6 +263,7 @@ def investigate(
 def execute_tools(
     state: InvestigationState,
     privacy: CasePrivacy | None = None,
+    config: RunnableConfig | None = None,
 ) -> dict:
     """Resolve aliases privately, then mask tool results."""
     if privacy is None:
@@ -319,7 +321,10 @@ def execute_tools(
                         arguments["account_id"]
                     )
 
-                raw_result = TOOLS_BY_NAME[name].invoke(arguments)
+                raw_result = TOOLS_BY_NAME[name].invoke(
+                    arguments,
+                    config=config,
+                )
 
                 result = privacy.mask(json.loads(raw_result))
 
@@ -942,7 +947,11 @@ def build_graph(
 
     builder.add_node(
         "tools",
-        lambda state: execute_tools(state, privacy),
+        lambda state, config: execute_tools(
+            state,
+            privacy,
+            config,
+        ),
     )
 
     builder.add_node(

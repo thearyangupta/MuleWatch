@@ -8,14 +8,27 @@ from langgraph.types import Command
 from psycopg.rows import dict_row
 from pydantic import BaseModel
 
-from agent.graph import CASE_DATABASE_URL, initial_state
+from agent.graph import CASE_DATABASE_URL, MODEL_NAME, PROMPT_PATH, initial_state
 from agent.review_runtime import review_graph, thread_config
-from agent.state_machine import (
-    InvalidTransition,
-    ReviewDecision,
+from agent.state_machine import InvalidTransition, ReviewDecision
+from agent.tracing import (
+    configured_trace_seed,
+    investigation_trace,
+    prompt_version_id,
 )
 
 router = APIRouter(prefix="/cases", tags=["Case Review"])
+
+
+def traced_config(config: dict, handler) -> dict:
+    """Attach tracing without modifying the original config."""
+    if handler is None:
+        return config
+
+    return {
+        **config,
+        "callbacks": [handler],
+    }
 
 
 def require_reviewer(
@@ -99,8 +112,6 @@ def get_case(case_id: int):
     dependencies=[Depends(require_reviewer)],
 )
 def decide_case(case_id: int, decision: ReviewDecision):
-    # A PostgreSQL advisory lock serializes review requests for
-    # this case without blocking the graph's case-row UPDATE.
     with psycopg.connect(CASE_DATABASE_URL) as lock_connection:
         with lock_connection.cursor() as cursor:
             cursor.execute(
@@ -147,10 +158,20 @@ def decide_case(case_id: int, decision: ReviewDecision):
                         "Graph is not paused for review",
                     )
 
-                result = graph.invoke(
-                    Command(resume=decision.model_dump(mode="json")),
-                    config=config,
-                )
+                with investigation_trace(
+                    source="api_review_resume",
+                    model=MODEL_NAME,
+                    prompt_version=prompt_version_id(PROMPT_PATH),
+                    git_sha=os.getenv("MULEWATCH_GIT_SHA", "unknown"),
+                    correlation_seed=configured_trace_seed(case["thread_id"]),
+                ) as handler:
+                    result = graph.invoke(
+                        Command(resume=decision.model_dump(mode="json")),
+                        config=traced_config(config, handler),
+                    )
+
+                    if handler is not None:
+                        handler.record_metrics(result)
 
             if result.get("__interrupt__"):
                 raise HTTPException(409, "Review was not finalized")
@@ -184,24 +205,33 @@ def start_review_investigation(
     config = thread_config(thread_id)
 
     try:
-        with review_graph() as graph:
-            result = graph.invoke(
-                initial_state(
-                    alert_id,
-                    thread_id=thread_id,
-                    human_review=True,
-                ),
-                config=config,
-            )
+        with investigation_trace(
+            source="api_investigation",
+            model=MODEL_NAME,
+            prompt_version=prompt_version_id(PROMPT_PATH),
+            git_sha=os.getenv("MULEWATCH_GIT_SHA", "unknown"),
+            correlation_seed=configured_trace_seed(thread_id),
+        ) as handler:
+            with review_graph() as graph:
+                result = graph.invoke(
+                    initial_state(
+                        alert_id,
+                        thread_id=thread_id,
+                        human_review=True,
+                    ),
+                    config=traced_config(config, handler),
+                )
 
-            snapshot = graph.get_state(config)
+                snapshot = graph.get_state(config)
+                state = snapshot.values or result
+
+                if handler is not None:
+                    handler.record_metrics(state)
 
     except ValueError as exc:
         if str(exc) == f"Alert {alert_id} not found":
             raise HTTPException(404, "Alert not found") from exc
         raise
-
-    state = snapshot.values or result
 
     if state.get("status") == "AWAITING_REVIEW":
         if "review" not in snapshot.next:

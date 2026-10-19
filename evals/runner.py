@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 from contextlib import ExitStack
 from pathlib import Path
 from unittest.mock import patch
@@ -10,6 +11,12 @@ from langgraph.checkpoint.memory import MemorySaver
 
 from agent import graph as graph_module
 from agent.evidence import create_evidence
+from agent.graph import MODEL_NAME, PROMPT_PATH
+from agent.tracing import (
+    configured_trace_seed,
+    investigation_trace,
+    prompt_version_id,
+)
 from evals.load_frozen_evidence import load_frozen_evidence
 from evals.scorers import (
     abstention_correctness,
@@ -288,10 +295,26 @@ def run_graph_case(case):
             },
             "recursion_limit": 35,
         }
-        app.invoke(state, config=config)
 
-        snapshot = app.get_state(config)
-        values = snapshot.values
+        with investigation_trace(
+            source="golden_evaluation",
+            model=MODEL_NAME,
+            prompt_version=prompt_version_id(PROMPT_PATH),
+            git_sha=os.getenv("MULEWATCH_GIT_SHA", "unknown"),
+            correlation_seed=configured_trace_seed(thread_id),
+        ) as handler:
+            invoke_config = dict(config)
+
+            if handler is not None:
+                invoke_config["callbacks"] = [handler]
+
+            app.invoke(state, config=invoke_config)
+
+            snapshot = app.get_state(config)
+            values = snapshot.values
+
+            if handler is not None:
+                handler.record_metrics(values)
 
         interrupted = bool(
             snapshot.tasks
