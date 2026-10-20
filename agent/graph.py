@@ -922,6 +922,7 @@ def build_graph(
     report_model=None,
     checkpointer=None,
     human_review: bool = False,
+    prompt_path: Path | None = None,
 ):
     """Compile one graph with one private privacy context."""
     if model is None:
@@ -930,7 +931,8 @@ def build_graph(
     if report_model is None:
         report_model = create_report_model()
 
-    prompt = PROMPT_PATH.read_text(encoding="utf-8")
+    selected_prompt_path = PROMPT_PATH if prompt_path is None else prompt_path
+    prompt = selected_prompt_path.read_text(encoding="utf-8")
 
     privacy = CasePrivacy()
     builder = StateGraph(InvestigationState)
