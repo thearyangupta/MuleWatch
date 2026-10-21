@@ -61,3 +61,101 @@ Do not promote a configuration until:
 
 The production default remains prompt v1, current model,
 and six-step budget until an explicit release decision.
+
+
+
+## Development Smoke Test
+
+Status: PASSED (development validation only)
+
+Git SHA: 7bc445e9a47d
+Cases: 5
+Configurations: baseline, prompt_v2, step_limit_4
+Repeats: 1
+Total evaluations: 15
+Completed: 15
+Graph errors: 0
+Result: evals/results/day4_smoke_7bc445e9a47d.json
+
+All cases reached AWAITING_REVIEW.
+
+Validated:
+- Frozen evidence integrity
+- Three configuration execution paths
+- Per-case result persistence
+- Successful smoke-test completion
+
+Not yet validated:
+- Resume after process interruption
+- Final report/action accuracy
+- Escalation recall and false escalation rate
+- Faithfulness and injection resistance
+- Cost per case
+- Statistical mean and spread across repeated runs
+
+Production decision:
+Keep the existing production configuration unchanged.
+Do not claim one experiment configuration is superior.
+
+Deferred:
+Full repeated benchmark and production configuration selection.
+
+## Week 5 Day 4 ? Checkpointed Development Smoke Test
+
+Status: DEVELOPMENT VALIDATION COMPLETE
+Production experiment acceptance: DEFERRED
+
+### Execution
+
+- Git SHA: 7bc445e9a47d
+- Frozen evidence integrity: PASS
+- Cases per configuration: 5
+- Configurations: baseline, prompt_v2, step_limit_4
+- Repeats: 1
+- Total completed evaluations: 15/15
+- Graph errors: 0
+- All evaluations reached AWAITING_REVIEW.
+- Results: evals/results/day4_smoke_7bc445e9a47d.json
+
+### Observed Metrics
+
+| Metric | Baseline | Prompt V2 | Step limit 4 |
+| --- | --- | --- | --- |
+| Action accuracy | N/A | N/A | N/A |
+| Citation validity | 100% | 100% | 100% |
+| Policy pass | 100% | 100% | 100% |
+| Mean latency | 15.0022s | 13.2958s | 12.8166s |
+| Graph errors | 0 | 0 | 0 |
+
+These are five-case, single-repeat development measurements.
+They do not establish statistical significance or model superiority.
+
+### Ground-Truth Limitation
+
+The evaluated golden cases are marked:
+- scored = false
+- label_status = PENDING_HUMAN_REVIEW
+
+The action_accuracy scorer correctly excludes unreviewed labels.
+No accuracy or escalation claims may be made from these cases.
+
+### Deferred Acceptance Requirements
+
+- Independent human adjudication of golden labels
+- At least three single-variable experiments with repeated runs
+- Mean and spread for comparable measured metrics
+- Action accuracy and escalation confusion metrics
+- Faithfulness and paired injection-resistance assessment
+- Cost per case and p95 latency
+- Evidence-based production configuration decision
+
+### Production Decision
+
+Retain the existing production configuration unchanged.
+The development smoke test does not justify promotion.
+
+### Engineering Decision
+
+Keep checkpointed evaluation execution for future experiments.
+Do not repeat the expensive full-suite run until labels,
+metrics, and acceptance criteria are ready.
