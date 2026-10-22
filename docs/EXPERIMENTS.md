@@ -100,7 +100,7 @@ Do not claim one experiment configuration is superior.
 Deferred:
 Full repeated benchmark and production configuration selection.
 
-## Week 5 Day 4 ? Checkpointed Development Smoke Test
+## Checkpointed Development Smoke Test
 
 Status: DEVELOPMENT VALIDATION COMPLETE
 Production experiment acceptance: DEFERRED

@@ -29,7 +29,7 @@ The evidence may support suspicious incoming activity, but it does not establish
 
 ---
 
-# Week 4 — Guardrail and Governance Follow-up
+# Guardrail and Governance Follow-up
 
 ## Previously observed investigation issues
 
@@ -96,12 +96,3 @@ been added.
 
 Mark this fully accepted only after database and
 end-to-end API tests pass.
-
-## Remaining work
-
-- Broader model-quality evaluation
-- Full process-restart recovery acceptance
-- Independent audit anchoring
-- Production-grade reviewer identity and authorization
-- Semantic validation of evidence-backed claims
-- Security review before any real-data deployment
