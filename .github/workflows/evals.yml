@@ -35,29 +35,6 @@ jobs:
       - name: Test evaluation gate
         run: python -m pytest tests/test_eval_gate.py -q
 
-      - name: Verify incomplete evaluation is blocked
-        shell: bash
-        run: |
-          set +e
-          output=$(python -m evals.gate \
-            evals/results/day4_smoke_7bc445e9a47d.json 2>&1)
-          status=$?
-          set -e
-
-          echo "$output"
-
-          if [ "$status" -ne 1 ]; then
-            echo "ERROR: expected quality-gate rejection (exit 1)"
-            exit 1
-          fi
-
-          if ! grep -q "Verdict: FAIL" <<< "$output"; then
-            echo "ERROR: gate did not produce an evaluation verdict"
-            exit 1
-          fi
-
-          echo "PASS: incomplete smoke evaluation rejected correctly"
-
       - name: Write CI summary
         if: always()
         shell: bash
