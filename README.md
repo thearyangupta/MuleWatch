@@ -172,3 +172,33 @@ MuleWatch/
 ## License
 
 License not yet specified.
+
+
+## Current Evaluation Quality
+
+MuleWatch maintains a frozen 35-case evaluation dataset.
+The latest Day 4 smoke experiment evaluated five cases
+under each of three configurations.
+
+| Quality indicator | Current observation |
+| --- | --- |
+| Frozen evaluation cases | 35 |
+| Smoke investigation executions | 15 |
+| Graph errors | 0 |
+| Citation validity | 100% on measured smoke cases |
+| Policy compliance | 100% on measured smoke cases |
+| Action accuracy | Not measured; labels pending review |
+| Escalation recall | Not measured |
+| Injection resistance | Not measured |
+| Model cost per case | Not measured |
+| Offline gate tests | 7 passing locally |
+| Full production acceptance | Pending |
+
+These observations are not a production-quality guarantee.
+
+The offline quality gate rejects incomplete evidence.
+Full PR evaluation, runtime spending protection, baseline
+calibration, and blocked-regression demonstration remain pending.
+
+See [Evaluation Framework](docs/EVALS.md) and
+[Experiment Results](docs/EXPERIMENTS.md).

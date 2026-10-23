@@ -1,0 +1,71 @@
+name: Evaluation Quality Gate
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-eval-gate:
+    name: Offline Evaluation Gate Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install offline test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest ruff
+
+      - name: Check gate formatting and lint
+        run: ruff check evals/gate.py tests/test_eval_gate.py
+
+      - name: Test evaluation gate
+        run: python -m pytest tests/test_eval_gate.py -q
+
+      - name: Verify incomplete evaluation is blocked
+        shell: bash
+        run: |
+          set +e
+          output=$(python -m evals.gate \
+            evals/results/day4_smoke_7bc445e9a47d.json 2>&1)
+          status=$?
+          set -e
+
+          echo "$output"
+
+          if [ "$status" -ne 1 ]; then
+            echo "ERROR: expected quality-gate rejection (exit 1)"
+            exit 1
+          fi
+
+          if ! grep -q "Verdict: FAIL" <<< "$output"; then
+            echo "ERROR: gate did not produce an evaluation verdict"
+            exit 1
+          fi
+
+          echo "PASS: incomplete smoke evaluation rejected correctly"
+
+      - name: Write CI summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## MuleWatch Evaluation Gate"
+            echo ""
+            echo "- Offline gate tests executed"
+            echo "- No paid LLM calls permitted in this job"
+            echo "- Production acceptance remains pending reviewed labels"
+          } >> "$GITHUB_STEP_SUMMARY"
