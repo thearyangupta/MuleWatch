@@ -171,7 +171,9 @@ def test_tool_executes_using_real_id_but_masks_evidence():
             privacy,
         )
 
-    mock_tool.invoke.assert_called_once_with({"account_id": "REAL_ACCOUNT_123"})
+    mock_tool.invoke.assert_called_once_with(
+        {"account_id": "REAL_ACCOUNT_123"}, config=None
+    )
 
     payload = json.dumps(
         result["evidence"],
