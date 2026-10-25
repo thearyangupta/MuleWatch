@@ -1,6 +1,7 @@
 import os
 import secrets
 import uuid
+from datetime import datetime
 
 import psycopg
 from fastapi import APIRouter, Depends, Header, HTTPException
@@ -70,7 +71,23 @@ def get_case_row(case_id: int) -> dict:
     return row
 
 
-@router.get("", dependencies=[Depends(require_reviewer)])
+class CaseListItem(BaseModel):
+    id: int
+    alert_id: int
+    status: str
+    summary: str | None
+    agent_action: str | None
+    final_action: str | None
+    reviewer_id: str | None
+    reviewed_at: datetime | None
+    agreement: bool | None
+
+
+@router.get(
+    "",
+    response_model=list[CaseListItem],
+    dependencies=[Depends(require_reviewer)],
+)
 def list_cases(status: str | None = None):
     if status is not None and status not in {
         "AWAITING_REVIEW",
