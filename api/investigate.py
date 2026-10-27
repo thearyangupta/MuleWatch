@@ -1,10 +1,10 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from agent.report import CaseReport
-from api.cases import start_review_investigation
+from api.cases import require_reviewer, start_review_investigation
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(require_reviewer)])
 
 
 class InvestigationResponse(BaseModel):

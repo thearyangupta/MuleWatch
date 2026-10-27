@@ -44,6 +44,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/cases/alerts/{alert_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Alert Investigation Status */
+        get: operations["get_alert_investigation_status_cases_alerts__alert_id__status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/cases/{case_id}": {
         parameters: {
             query?: never;
@@ -136,6 +153,15 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AlertInvestigationStatus */
+        AlertInvestigationStatus: {
+            /** Alert Id */
+            alert_id: number;
+            /** Case Id */
+            case_id: number | null;
+            /** Status */
+            status: string;
+        };
         /** BatchScoreRequest */
         BatchScoreRequest: {
             /** Account Ids */
@@ -165,9 +191,23 @@ export interface components {
         /** CaseListItem */
         CaseListItem: {
             /** Id */
-            id: number;
+            id: number | null;
             /** Alert Id */
             alert_id: number;
+            /**
+             * Alert Date
+             * Format: date
+             */
+            alert_date: string;
+            /** Account Id */
+            account_id: string;
+            /** Risk Score */
+            risk_score: number;
+            /**
+             * Risk
+             * @enum {string}
+             */
+            risk: "LOW" | "MEDIUM" | "HIGH";
             /** Status */
             status: string;
             /** Summary */
@@ -182,6 +222,11 @@ export interface components {
             reviewed_at: string | null;
             /** Agreement */
             agreement: boolean | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** CaseReport */
         CaseReport: {
@@ -217,6 +262,19 @@ export interface components {
             /** Status */
             status: string;
             report: components["schemas"]["CaseReport"] | null;
+        };
+        /** PaginatedCases */
+        PaginatedCases: {
+            /** Items */
+            items: components["schemas"]["CaseListItem"][];
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total */
+            total: number;
+            /** Total Pages */
+            total_pages: number;
         };
         /** Reason */
         Reason: {
@@ -332,6 +390,12 @@ export interface operations {
         parameters: {
             query?: {
                 status?: string | null;
+                risk?: ("LOW" | "MEDIUM" | "HIGH") | null;
+                date_from?: string | null;
+                date_to?: string | null;
+                sort?: "newest" | "oldest";
+                page?: number;
+                page_size?: number;
             };
             header?: {
                 "x-review-api-key"?: string | null;
@@ -347,7 +411,40 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CaseListItem"][];
+                    "application/json": components["schemas"]["PaginatedCases"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_alert_investigation_status_cases_alerts__alert_id__status_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-review-api-key"?: string | null;
+            };
+            path: {
+                alert_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlertInvestigationStatus"];
                 };
             };
             /** @description Validation Error */

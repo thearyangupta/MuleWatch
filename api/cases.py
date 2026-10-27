@@ -1,10 +1,11 @@
 import os
 import secrets
 import uuid
-from datetime import datetime
+from datetime import date, datetime
+from typing import Literal
 
 import psycopg
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from langgraph.types import Command
 from psycopg.rows import dict_row
 from pydantic import BaseModel
@@ -72,8 +73,12 @@ def get_case_row(case_id: int) -> dict:
 
 
 class CaseListItem(BaseModel):
-    id: int
+    id: int | None
     alert_id: int
+    alert_date: date
+    account_id: str
+    risk_score: float
+    risk: Literal["LOW", "MEDIUM", "HIGH"]
     status: str
     summary: str | None
     agent_action: str | None
@@ -81,39 +86,119 @@ class CaseListItem(BaseModel):
     reviewer_id: str | None
     reviewed_at: datetime | None
     agreement: bool | None
+    created_at: datetime
 
 
-@router.get(
-    "",
-    response_model=list[CaseListItem],
-    dependencies=[Depends(require_reviewer)],
-)
-def list_cases(status: str | None = None):
-    if status is not None and status not in {
+class PaginatedCases(BaseModel):
+    items: list[CaseListItem]
+    page: int
+    page_size: int
+    total: int
+    total_pages: int
+
+
+class AlertInvestigationStatus(BaseModel):
+    alert_id: int
+    case_id: int | None
+    status: str
+
+
+RISK_SQL = """CASE WHEN a.risk_score >= 0.70 THEN 'HIGH'
+                    WHEN a.risk_score >= 0.40 THEN 'MEDIUM'
+                    ELSE 'LOW' END"""
+
+
+@router.get("", response_model=PaginatedCases, dependencies=[Depends(require_reviewer)])
+def list_cases(
+    status: str | None = None,
+    risk: Literal["LOW", "MEDIUM", "HIGH"] | None = None,
+    date_from: date | None = None,
+    date_to: date | None = None,
+    sort: Literal["newest", "oldest"] = "newest",
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=20, ge=1, le=100),
+) -> PaginatedCases:
+    allowed_statuses = {
+        "NEW",
+        "OPEN",
+        "INVESTIGATING",
         "AWAITING_REVIEW",
         "CLOSED",
         "ESCALATED",
         "NEEDS_MANUAL_REVIEW",
         "INSUFFICIENT_EVIDENCE",
         "COMPLETE",
-    }:
-        raise HTTPException(422, "Unsupported case status")
+    }
+    if status is not None and status not in allowed_statuses:
+        raise HTTPException(status_code=422, detail="Unsupported case status")
+    if date_from and date_to and date_from > date_to:
+        raise HTTPException(status_code=422, detail="date_from must not exceed date_to")
 
+    joins = """FROM alerts a
+        LEFT JOIN LATERAL (
+            SELECT id, status, summary, agent_action, final_action,
+                   reviewer_id, reviewed_at, agreement
+            FROM cases
+            WHERE alert_id = a.id
+            ORDER BY created_at DESC, id DESC
+            LIMIT 1
+        ) c ON TRUE"""
+    where = f"""WHERE (%s::text IS NULL OR COALESCE(c.status, a.status) = %s)
+        AND (%s::text IS NULL OR ({RISK_SQL}) = %s)
+        AND (%s::date IS NULL OR a.alert_date >= %s::date)
+        AND (%s::date IS NULL OR a.alert_date <= %s::date)"""
+    params = (status, status, risk, risk, date_from, date_from, date_to, date_to)
+    direction = "DESC" if sort == "newest" else "ASC"
+    with psycopg.connect(CASE_DATABASE_URL, row_factory=dict_row) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(f"SELECT COUNT(*) AS total {joins} {where}", params)
+            count_row = cursor.fetchone()
+            total = int(count_row["total"]) if count_row else 0
+            cursor.execute(
+                f"""SELECT c.id, a.id AS alert_id, a.alert_date, a.account_id,
+                           a.risk_score, {RISK_SQL} AS risk,
+                           COALESCE(c.status, a.status) AS status,
+                           c.summary, c.agent_action, c.final_action,
+                           c.reviewer_id, c.reviewed_at, c.agreement, a.created_at
+                    {joins} {where}
+                    ORDER BY a.created_at {direction}, a.id {direction}
+                    LIMIT %s OFFSET %s""",
+                (*params, page_size, (page - 1) * page_size),
+            )
+            rows = cursor.fetchall()
+    return PaginatedCases(
+        items=[CaseListItem(**row) for row in rows],
+        page=page,
+        page_size=page_size,
+        total=total,
+        total_pages=(total + page_size - 1) // page_size,
+    )
+
+
+@router.get(
+    "/alerts/{alert_id}/status",
+    response_model=AlertInvestigationStatus,
+    dependencies=[Depends(require_reviewer)],
+)
+def get_alert_investigation_status(alert_id: int) -> AlertInvestigationStatus:
     with psycopg.connect(CASE_DATABASE_URL, row_factory=dict_row) as connection:
         with connection.cursor() as cursor:
             cursor.execute(
-                """
-                SELECT id, alert_id, status, summary,
-                       agent_action, final_action,
-                       reviewer_id, reviewed_at, agreement
-                FROM cases
-                WHERE (%s::text IS NULL OR status = %s)
-                ORDER BY created_at DESC, id DESC
-                LIMIT 100
-                """,
-                (status, status),
+                """SELECT a.id AS alert_id, c.id AS case_id,
+                          COALESCE(c.status, a.status) AS status
+                   FROM alerts a
+                   LEFT JOIN LATERAL (
+                       SELECT id, status FROM cases
+                       WHERE alert_id = a.id
+                       ORDER BY created_at DESC, id DESC LIMIT 1
+                   ) c ON TRUE
+                   WHERE a.id = %s""",
+                (alert_id,),
             )
-            return cursor.fetchall()
+            row = cursor.fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Alert not found")
+    return AlertInvestigationStatus(**row)
 
 
 @router.get(

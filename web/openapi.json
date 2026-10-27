@@ -70,6 +70,98 @@
             }
           },
           {
+            "name": "risk",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "LOW",
+                    "MEDIUM",
+                    "HIGH"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Risk"
+            }
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date From"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date To"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "newest",
+                "oldest"
+              ],
+              "type": "string",
+              "default": "newest",
+              "title": "Sort"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          },
+          {
             "name": "x-review-api-key",
             "in": "header",
             "required": false,
@@ -92,11 +184,65 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/CaseListItem"
-                  },
-                  "title": "Response List Cases Cases Get"
+                  "$ref": "#/components/schemas/PaginatedCases"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cases/alerts/{alert_id}/status": {
+      "get": {
+        "tags": [
+          "Case Review"
+        ],
+        "summary": "Get Alert Investigation Status",
+        "operationId": "get_alert_investigation_status_cases_alerts__alert_id__status_get",
+        "parameters": [
+          {
+            "name": "alert_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Alert Id"
+            }
+          },
+          {
+            "name": "x-review-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Review-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertInvestigationStatus"
                 }
               }
             }
@@ -372,6 +518,36 @@
   },
   "components": {
     "schemas": {
+      "AlertInvestigationStatus": {
+        "properties": {
+          "alert_id": {
+            "type": "integer",
+            "title": "Alert Id"
+          },
+          "case_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Case Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "alert_id",
+          "case_id",
+          "status"
+        ],
+        "title": "AlertInvestigationStatus"
+      },
       "BatchScoreRequest": {
         "properties": {
           "account_ids": {
@@ -444,12 +620,41 @@
       "CaseListItem": {
         "properties": {
           "id": {
-            "type": "integer",
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Id"
           },
           "alert_id": {
             "type": "integer",
             "title": "Alert Id"
+          },
+          "alert_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Alert Date"
+          },
+          "account_id": {
+            "type": "string",
+            "title": "Account Id"
+          },
+          "risk_score": {
+            "type": "number",
+            "title": "Risk Score"
+          },
+          "risk": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH"
+            ],
+            "title": "Risk"
           },
           "status": {
             "type": "string",
@@ -521,19 +726,29 @@
               }
             ],
             "title": "Agreement"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
           }
         },
         "type": "object",
         "required": [
           "id",
           "alert_id",
+          "alert_date",
+          "account_id",
+          "risk_score",
+          "risk",
           "status",
           "summary",
           "agent_action",
           "final_action",
           "reviewer_id",
           "reviewed_at",
-          "agreement"
+          "agreement",
+          "created_at"
         ],
         "title": "CaseListItem"
       },
@@ -654,6 +869,42 @@
           "report"
         ],
         "title": "InvestigationResponse"
+      },
+      "PaginatedCases": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/CaseListItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "total_pages": {
+            "type": "integer",
+            "title": "Total Pages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "page",
+          "page_size",
+          "total",
+          "total_pages"
+        ],
+        "title": "PaginatedCases"
       },
       "Reason": {
         "properties": {

@@ -1,4 +1,5 @@
-﻿import { NavLink, Navigate, Route, Routes } from 'react-router'
+import { CasePage } from './pages/CasePage'
+import { NavLink, Navigate, Route, Routes } from 'react-router'
 import { QueuePage } from './pages/QueuePage'
 import { OpsPage } from './pages/OpsPage'
 
@@ -47,6 +48,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/queue" replace />} />
             <Route path="/queue" element={<QueuePage />} />
+            <Route path="/cases/:caseId" element={<CasePage />} />
             <Route path="/ops" element={<OpsPage />} />
             <Route path="*" element={<Navigate to="/queue" replace />} />
           </Routes>
