@@ -1,6 +1,7 @@
 from datetime import date
 from unittest.mock import patch
 
+import pytest
 from fastapi.testclient import TestClient
 from langchain_core.messages import AIMessage
 
@@ -107,6 +108,11 @@ def fake_connect(dsn, **kwargs):
     return FakeConnection(write="row_factory" not in kwargs)
 
 
+@pytest.fixture(autouse=True)
+def configure_reviewer_key(monkeypatch):
+    monkeypatch.setenv("MULEWATCH_REVIEW_API_KEY", "ci-test-reviewer-key")
+
+
 def test_investigate_endpoint():
     from api.cases import StartInvestigationResponse
 
@@ -120,7 +126,9 @@ def test_investigate_endpoint():
         "api.investigate.start_review_investigation",
         return_value=expected,
     ):
-        response = TestClient(app).post("/investigate/1")
+        response = TestClient(app).post(
+            "/investigate/1", headers={"X-Review-API-Key": "ci-test-reviewer-key"}
+        )
 
     assert response.status_code == 200
 
@@ -132,6 +140,8 @@ def test_investigate_endpoint():
 
 
 def test_invalid_alert_id():
-    response = TestClient(app).post("/investigate/0")
+    response = TestClient(app).post(
+        "/investigate/0", headers={"X-Review-API-Key": "ci-test-reviewer-key"}
+    )
 
     assert response.status_code == 422
