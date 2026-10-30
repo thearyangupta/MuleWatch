@@ -1,4 +1,4 @@
-﻿import type { operations } from './types'
+import type { operations } from './types'
 
 export type CaseListResponse =
   operations['list_cases_cases_get']['responses'][200]['content']['application/json']
@@ -68,4 +68,15 @@ export async function fetchAlertStatus(alertId: number, signal?: AbortSignal): P
   })
   await checkResponse(response)
   return (await response.json()) as AlertStatusResponse
+}
+
+export type CaseEvidenceDetail =
+  operations['get_case_evidence_cases__case_id__evidence_get']['responses'][200]['content']['application/json']
+
+export async function fetchCaseEvidence(caseId: number, signal?: AbortSignal): Promise<CaseEvidenceDetail> {
+  const response = await fetch(urlFor(`/cases/${caseId}/evidence`), {
+    signal, headers: { Accept: 'application/json' },
+  })
+  await checkResponse(response)
+  return (await response.json()) as CaseEvidenceDetail
 }

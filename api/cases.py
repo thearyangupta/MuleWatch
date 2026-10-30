@@ -1,4 +1,6 @@
+import math
 import os
+import re
 import secrets
 import uuid
 from datetime import date, datetime
@@ -346,4 +348,259 @@ def start_review_investigation(
         case_id=state["case_id"],
         status=state["status"],
         report=state.get("report"),
+    )
+
+
+class CaseEvidenceDetail(BaseModel):
+    """Case view projection: masked identity, report, trace and linked evidence."""
+
+    case_id: int
+    alert_id: int
+    account_token: str
+    status: str
+    risk_score: float
+    model_version: str
+    prompt_version: str | None
+    report: dict | None
+    evidence: list[dict]
+    model_reasons: object
+    tool_trace: object
+    warnings: list[str]
+
+
+def _safe_citation_id(value: object) -> bool:
+    """Only opaque, bounded citation identifiers may reach the browser."""
+    return (
+        isinstance(value, str)
+        and re.fullmatch(r"[A-Za-z0-9_-]{1,80}", value) is not None
+    )
+
+
+def _safe_case_report(report: dict | None) -> dict | None:
+    """Preserve structured decisions and references, not unreviewed prose."""
+    if report is None:
+        return None
+
+    safe = {
+        "summary": "Narrative withheld pending privacy review.",
+        "findings": [],
+        "typology_matches": [],
+        "open_questions": [],
+    }
+
+    if report.get("risk_rating") in ("LOW", "MEDIUM", "HIGH"):
+        safe["risk_rating"] = report["risk_rating"]
+
+    if report.get("recommended_action") in (
+        "CLOSE_NO_ACTION",
+        "ENHANCED_MONITORING",
+        "ESCALATE_TO_INVESTIGATOR",
+    ):
+        safe["recommended_action"] = report["recommended_action"]
+
+    confidence = report.get("confidence")
+    if (
+        isinstance(confidence, (int, float))
+        and not isinstance(confidence, bool)
+        and math.isfinite(confidence)
+        and 0 <= confidence <= 1
+    ):
+        safe["confidence"] = confidence
+
+    for finding in report.get("findings", []):
+        if not isinstance(finding, dict):
+            continue
+        ids = finding.get("evidence_ids", [])
+        if not isinstance(ids, list):
+            continue
+        refs = [item for item in ids if _safe_citation_id(item)]
+        if refs:
+            safe["findings"].append(
+                {
+                    "claim": "Finding narrative withheld pending privacy review.",
+                    "evidence_ids": refs,
+                }
+            )
+
+    for match in report.get("typology_matches", []):
+        if not isinstance(match, dict):
+            continue
+        ref = match.get("evidence_id")
+        if not _safe_citation_id(ref):
+            continue
+        chunks = match.get("chunk_ids", [])
+        if not isinstance(chunks, list):
+            chunks = []
+        safe["typology_matches"].append(
+            {
+                "typology": "Typology narrative withheld",
+                "explanation": "Explanation withheld pending privacy review.",
+                "evidence_id": ref,
+                "chunk_ids": [item for item in chunks if _safe_citation_id(item)],
+            }
+        )
+
+    return safe
+
+
+def _safe_model_reasons(value: object) -> list[dict]:
+    """Only trained feature names and finite numeric values are exposed."""
+    from scoring.train import FEATURE_COLUMNS
+
+    allowed = set(FEATURE_COLUMNS)
+    if not isinstance(value, list):
+        return []
+
+    safe = []
+    for item in value:
+        if not isinstance(item, dict):
+            continue
+        feature = item.get("feature")
+        if not isinstance(feature, str) or feature not in allowed:
+            continue
+
+        projected = {"feature": feature}
+        for key in ("value", "shap_value"):
+            number = item.get(key)
+            if (
+                isinstance(number, (int, float))
+                and not isinstance(number, bool)
+                and math.isfinite(number)
+            ):
+                projected[key] = number
+
+        if "shap_value" in projected:
+            safe.append(projected)
+
+    return safe
+
+
+def _safe_evidence_data(value: object) -> dict:
+    """Expose only numeric measurements; raw text may contain customer PII."""
+    if not isinstance(value, dict):
+        return {}
+    safe = {}
+    for key, item in value.items():
+        if (
+            not isinstance(key, str)
+            or re.fullmatch(r"[a-z][a-z0-9_]{0,63}", key) is None
+            or any(
+                term in key
+                for term in (
+                    "account",
+                    "customer",
+                    "phone",
+                    "email",
+                    "address",
+                    "name",
+                    "iban",
+                    "pan",
+                    "aadhaar",
+                    "identifier",
+                    "reference",
+                    "token",
+                    "secret",
+                )
+            )
+        ):
+            continue
+        if isinstance(item, (int, float)) and not isinstance(item, bool):
+            safe[key] = item
+        elif isinstance(item, dict):
+            nested = _safe_evidence_data(item)
+            if nested:
+                safe[key] = nested
+    return safe
+
+
+def _evidence_from_trace(value: object) -> list[dict]:
+    """Find evidence-shaped objects without inventing evidence or citations."""
+    found: dict[str, dict] = {}
+
+    def walk(node: object, depth: int = 0) -> None:
+        if depth > 12:
+            return
+        if isinstance(node, dict):
+            identifier = node.get("evidence_id")
+            if _safe_citation_id(identifier):
+                found.setdefault(
+                    identifier,
+                    {
+                        "evidence_id": identifier,
+                        "source": "Stored investigation evidence",
+                        "summary": "Evidence record (sensitive text withheld)",
+                        "data": _safe_evidence_data(node.get("data")),
+                    },
+                )
+            for child in node.values():
+                walk(child, depth + 1)
+        elif isinstance(node, list):
+            for child in node:
+                walk(child, depth + 1)
+
+    walk(value)
+    return list(found.values())
+
+
+@router.get(
+    "/{case_id}/evidence",
+    response_model=CaseEvidenceDetail,
+    dependencies=[Depends(require_reviewer)],
+)
+def get_case_evidence(case_id: int) -> CaseEvidenceDetail:
+    with psycopg.connect(CASE_DATABASE_URL, row_factory=dict_row) as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """SELECT c.id AS case_id, c.alert_id, c.status, c.report,
+                          c.tool_trace, a.account_id, a.risk_score,
+                          a.model_version, a.reasons
+                   FROM cases c JOIN alerts a ON a.id = c.alert_id
+                   WHERE c.id = %s""",
+                (case_id,),
+            )
+            row = cursor.fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail="Case not found")
+
+    report = row["report"] if isinstance(row["report"], dict) else None
+    trace = row["tool_trace"]
+    evidence = _evidence_from_trace(trace)
+    cited = set()
+    if report:
+        for finding in report.get("findings", []):
+            if isinstance(finding, dict):
+                cited.update(
+                    x for x in finding.get("evidence_ids", []) if _safe_citation_id(x)
+                )
+        for match in report.get("typology_matches", []):
+            if isinstance(match, dict) and _safe_citation_id(match.get("evidence_id")):
+                cited.add(match["evidence_id"])
+    available = {item["evidence_id"] for item in evidence}
+    warnings = []
+    if report is None:
+        warnings.append("No structured report is available for this case.")
+    if cited - available:
+        warnings.append(
+            "Some cited evidence is not available in the stored tool trace."
+        )
+    if not evidence:
+        warnings.append("No evidence items were found in the stored tool trace.")
+    if isinstance(trace, (dict, list)):
+        trace_text = str(trace).lower()
+        if "possible_injection" in trace_text or "prompt_injection" in trace_text:
+            warnings.append("Possible prompt injection: review the source evidence.")
+    account_id = str(row["account_id"])
+    return CaseEvidenceDetail(
+        case_id=row["case_id"],
+        alert_id=row["alert_id"],
+        account_token="****" + account_id[-4:],
+        status=row["status"],
+        risk_score=row["risk_score"],
+        model_version=row["model_version"],
+        prompt_version=prompt_version_id(PROMPT_PATH),
+        report=_safe_case_report(report),
+        evidence=evidence,
+        model_reasons=_safe_model_reasons(row["reasons"]),
+        tool_trace={},  # Never expose raw trace: it can contain PII/untrusted text.
+        warnings=warnings,
     )

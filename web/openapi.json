@@ -19,6 +19,22 @@
               "type": "integer",
               "title": "Alert Id"
             }
+          },
+          {
+            "name": "x-review-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Review-Api-Key"
+            }
           }
         ],
         "responses": {
@@ -382,6 +398,64 @@
         }
       }
     },
+    "/cases/{case_id}/evidence": {
+      "get": {
+        "tags": [
+          "Case Review"
+        ],
+        "summary": "Get Case Evidence",
+        "operationId": "get_case_evidence_cases__case_id__evidence_get",
+        "parameters": [
+          {
+            "name": "case_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Case Id"
+            }
+          },
+          {
+            "name": "x-review-api-key",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "X-Review-Api-Key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CaseEvidenceDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/cases/{case_id}/audit": {
       "get": {
         "tags": [
@@ -616,6 +690,95 @@
           "reasons"
         ],
         "title": "BatchScoreResult"
+      },
+      "CaseEvidenceDetail": {
+        "properties": {
+          "case_id": {
+            "type": "integer",
+            "title": "Case Id"
+          },
+          "alert_id": {
+            "type": "integer",
+            "title": "Alert Id"
+          },
+          "account_token": {
+            "type": "string",
+            "title": "Account Token"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "risk_score": {
+            "type": "number",
+            "title": "Risk Score"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version"
+          },
+          "prompt_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prompt Version"
+          },
+          "report": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Report"
+          },
+          "evidence": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Evidence"
+          },
+          "model_reasons": {
+            "title": "Model Reasons"
+          },
+          "tool_trace": {
+            "title": "Tool Trace"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          }
+        },
+        "type": "object",
+        "required": [
+          "case_id",
+          "alert_id",
+          "account_token",
+          "status",
+          "risk_score",
+          "model_version",
+          "prompt_version",
+          "report",
+          "evidence",
+          "model_reasons",
+          "tool_trace",
+          "warnings"
+        ],
+        "title": "CaseEvidenceDetail",
+        "description": "Case view projection: masked identity, report, trace and linked evidence."
       },
       "CaseListItem": {
         "properties": {

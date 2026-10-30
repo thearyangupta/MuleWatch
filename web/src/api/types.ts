@@ -95,6 +95,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/cases/{case_id}/evidence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Case Evidence */
+        get: operations["get_case_evidence_cases__case_id__evidence_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/cases/{case_id}/audit": {
         parameters: {
             query?: never;
@@ -187,6 +204,40 @@ export interface components {
             model_version: string;
             /** Reasons */
             reasons: components["schemas"]["Reason"][];
+        };
+        /**
+         * CaseEvidenceDetail
+         * @description Case view projection: masked identity, report, trace and linked evidence.
+         */
+        CaseEvidenceDetail: {
+            /** Case Id */
+            case_id: number;
+            /** Alert Id */
+            alert_id: number;
+            /** Account Token */
+            account_token: string;
+            /** Status */
+            status: string;
+            /** Risk Score */
+            risk_score: number;
+            /** Model Version */
+            model_version: string;
+            /** Prompt Version */
+            prompt_version: string | null;
+            /** Report */
+            report: {
+                [key: string]: unknown;
+            } | null;
+            /** Evidence */
+            evidence: {
+                [key: string]: unknown;
+            }[];
+            /** Model Reasons */
+            model_reasons: unknown;
+            /** Tool Trace */
+            tool_trace: unknown;
+            /** Warnings */
+            warnings: string[];
         };
         /** CaseListItem */
         CaseListItem: {
@@ -358,7 +409,9 @@ export interface operations {
     investigate_alert_investigate__alert_id__post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                "x-review-api-key"?: string | null;
+            };
             path: {
                 alert_id: number;
             };
@@ -515,6 +568,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_case_evidence_cases__case_id__evidence_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                "x-review-api-key"?: string | null;
+            };
+            path: {
+                case_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CaseEvidenceDetail"];
                 };
             };
             /** @description Validation Error */
