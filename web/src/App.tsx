@@ -1,3 +1,5 @@
+import { useAuth } from './auth'
+import { LoginPage } from './pages/LoginPage'
 import { CasePage } from './pages/CasePage'
 import { NavLink, Navigate, Route, Routes } from 'react-router'
 import { QueuePage } from './pages/QueuePage'
@@ -9,6 +11,12 @@ const navigation = [
 ]
 
 function App() {
+  const { session, logout } = useAuth()
+
+  if (!session) {
+    return <LoginPage />
+  }
+
   return (
     <div className="min-h-screen md:flex">
       <aside className="bg-slate-900 p-6 text-white md:min-h-screen md:w-64">
@@ -16,7 +24,7 @@ function App() {
         <p className="mt-1 text-xs text-slate-400">Analyst Console</p>
 
         <nav aria-label="Main navigation" className="mt-8 space-y-2">
-          {navigation.map((item) => (
+          {navigation.filter(item => item.to !== '/ops' || session.user.role === 'lead').map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -35,6 +43,12 @@ function App() {
       </aside>
 
       <div className="min-w-0 flex-1">
+        <div className="flex items-center justify-end gap-3 border-b bg-white px-6 py-3 text-sm">
+          <span>{session.user.username} ({session.user.role})</span>
+          <button type="button" onClick={logout} className="text-blue-700 underline">
+            Log out
+          </button>
+        </div>
         <header className="border-b border-slate-200 bg-white px-6 py-5">
           <p className="font-semibold text-slate-900">
             MuleWatch Analyst Console
@@ -49,7 +63,7 @@ function App() {
             <Route path="/" element={<Navigate to="/queue" replace />} />
             <Route path="/queue" element={<QueuePage />} />
             <Route path="/cases/:caseId" element={<CasePage />} />
-            <Route path="/ops" element={<OpsPage />} />
+            <Route path="/ops" element={session.user.role === 'lead' ? <OpsPage /> : <Navigate to="/queue" replace />} />
             <Route path="*" element={<Navigate to="/queue" replace />} />
           </Routes>
         </main>

@@ -10,6 +10,11 @@
         "summary": "Investigate Alert",
         "description": "Start an investigation with human-in-the-loop review.\n\nA successfully verified investigation pauses at\nAWAITING_REVIEW instead of completing automatically.",
         "operationId": "investigate_alert_investigate__alert_id__post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "alert_id",
@@ -18,22 +23,6 @@
             "schema": {
               "type": "integer",
               "title": "Alert Id"
-            }
-          },
-          {
-            "name": "x-review-api-key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "X-Review-Api-Key"
             }
           }
         ],
@@ -68,6 +57,11 @@
         ],
         "summary": "List Cases",
         "operationId": "list_cases_cases_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "status",
@@ -176,22 +170,6 @@
               "default": 20,
               "title": "Page Size"
             }
-          },
-          {
-            "name": "x-review-api-key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "X-Review-Api-Key"
-            }
           }
         ],
         "responses": {
@@ -225,6 +203,11 @@
         ],
         "summary": "Get Alert Investigation Status",
         "operationId": "get_alert_investigation_status_cases_alerts__alert_id__status_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "alert_id",
@@ -233,22 +216,6 @@
             "schema": {
               "type": "integer",
               "title": "Alert Id"
-            }
-          },
-          {
-            "name": "x-review-api-key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "X-Review-Api-Key"
             }
           }
         ],
@@ -283,6 +250,11 @@
         ],
         "summary": "Get Case",
         "operationId": "get_case_cases__case_id__get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "case_id",
@@ -291,22 +263,6 @@
             "schema": {
               "type": "integer",
               "title": "Case Id"
-            }
-          },
-          {
-            "name": "x-review-api-key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "X-Review-Api-Key"
             }
           }
         ],
@@ -339,6 +295,11 @@
         ],
         "summary": "Decide Case",
         "operationId": "decide_case_cases__case_id__decision_post",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "case_id",
@@ -348,22 +309,6 @@
               "type": "integer",
               "title": "Case Id"
             }
-          },
-          {
-            "name": "x-review-api-key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "X-Review-Api-Key"
-            }
           }
         ],
         "requestBody": {
@@ -371,7 +316,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/ReviewDecision"
+                "$ref": "#/components/schemas/DecisionRequest"
               }
             }
           }
@@ -405,6 +350,11 @@
         ],
         "summary": "Get Case Evidence",
         "operationId": "get_case_evidence_cases__case_id__evidence_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "case_id",
@@ -413,22 +363,6 @@
             "schema": {
               "type": "integer",
               "title": "Case Id"
-            }
-          },
-          {
-            "name": "x-review-api-key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "X-Review-Api-Key"
             }
           }
         ],
@@ -464,6 +398,11 @@
         "summary": "Get Case Audit",
         "description": "Return the ordered audit history of a case.",
         "operationId": "get_case_audit_cases__case_id__audit_get",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "case_id",
@@ -472,22 +411,6 @@
             "schema": {
               "type": "integer",
               "title": "Case Id"
-            }
-          },
-          {
-            "name": "x-review-api-key",
-            "in": "header",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "X-Review-Api-Key"
             }
           }
         ],
@@ -511,6 +434,73 @@
             }
           }
         }
+      }
+    },
+    "/auth/token": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Login",
+        "operationId": "login_auth_token_post",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_login_auth_token_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Get Me",
+        "operationId": "get_me_auth_me_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticatedUser"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
       }
     },
     "/score": {
@@ -622,6 +612,28 @@
         ],
         "title": "AlertInvestigationStatus"
       },
+      "AuthenticatedUser": {
+        "properties": {
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "analyst",
+              "lead"
+            ],
+            "title": "Role"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "role"
+        ],
+        "title": "AuthenticatedUser"
+      },
       "BatchScoreRequest": {
         "properties": {
           "account_ids": {
@@ -690,6 +702,65 @@
           "reasons"
         ],
         "title": "BatchScoreResult"
+      },
+      "Body_login_auth_token_post": {
+        "properties": {
+          "grant_type": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^password$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Grant Type"
+          },
+          "username": {
+            "type": "string",
+            "title": "Username"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "title": "Password"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope",
+            "default": ""
+          },
+          "client_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
+          },
+          "client_secret": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "format": "password",
+            "title": "Client Secret"
+          }
+        },
+        "type": "object",
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "Body_login_auth_token_post"
       },
       "CaseEvidenceDetail": {
         "properties": {
@@ -968,6 +1039,42 @@
         ],
         "title": "CaseReport"
       },
+      "DecisionRequest": {
+        "properties": {
+          "decision": {
+            "type": "string",
+            "enum": [
+              "approve",
+              "override",
+              "escalate"
+            ],
+            "title": "Decision"
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Comment"
+          },
+          "final_action": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/RecommendedAction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "decision",
+          "comment"
+        ],
+        "title": "DecisionRequest"
+      },
       "Finding": {
         "properties": {
           "claim": {
@@ -1101,48 +1208,6 @@
         ],
         "title": "RecommendedAction"
       },
-      "ReviewDecision": {
-        "properties": {
-          "decision": {
-            "type": "string",
-            "enum": [
-              "approve",
-              "override",
-              "escalate"
-            ],
-            "title": "Decision"
-          },
-          "reviewer_id": {
-            "type": "string",
-            "maxLength": 128,
-            "minLength": 1,
-            "title": "Reviewer Id"
-          },
-          "comment": {
-            "type": "string",
-            "maxLength": 2000,
-            "minLength": 1,
-            "title": "Comment"
-          },
-          "final_action": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/RecommendedAction"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "type": "object",
-        "required": [
-          "decision",
-          "reviewer_id",
-          "comment"
-        ],
-        "title": "ReviewDecision"
-      },
       "RiskRating": {
         "type": "string",
         "enum": [
@@ -1190,6 +1255,24 @@
           "reasons"
         ],
         "title": "ScoreResponse"
+      },
+      "TokenResponse": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type",
+            "default": "bearer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token"
+        ],
+        "title": "TokenResponse"
       },
       "TypologyMatch": {
         "properties": {
@@ -1265,6 +1348,17 @@
           "type"
         ],
         "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "OAuth2PasswordBearer": {
+        "type": "oauth2",
+        "flows": {
+          "password": {
+            "scopes": {},
+            "tokenUrl": "/auth/token"
+          }
+        }
       }
     }
   }

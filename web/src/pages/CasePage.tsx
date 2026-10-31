@@ -1,3 +1,5 @@
+import { DecisionForm } from '../components/DecisionForm'
+import { Timeline } from '../components/Timeline'
 
 type ValidEvidence = {
   evidence_id: string
@@ -18,7 +20,7 @@ function isValidEvidence(value: unknown): value is ValidEvidence {
   )
 }
 import { useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router'
 import { fetchCaseEvidence, type CaseEvidenceDetail } from '../api/client'
 
@@ -64,6 +66,7 @@ function Reasons({ value }: { value: unknown }) {
 }
 
 export function CasePage() {
+  const queryClient = useQueryClient()
   const { caseId } = useParams()
   const id = Number(caseId)
   const valid = Number.isSafeInteger(id) && id > 0
@@ -93,6 +96,19 @@ export function CasePage() {
     {query.isPending && valid && <div role="status" className="space-y-3">{[1, 2, 3].map(i => <div key={i} className="h-16 animate-pulse rounded bg-slate-200" />)}<span className="sr-only">Loading case</span></div>}
     {query.isError && <div role="alert" className="rounded border border-red-300 bg-red-50 p-4">Could not load case: {query.error.message}<button className="ml-3 underline" onClick={() => void query.refetch()}>Retry</button></div>}
     {query.data && <>
+      <DecisionForm
+        caseId={id}
+        status={query.data.status}
+        recommendedAction={asString(report.recommended_action)}
+        onSuccess={async () => {
+          await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ['case-evidence', id] }),
+            queryClient.invalidateQueries({ queryKey: ['case-audit', id] }),
+            queryClient.invalidateQueries({ queryKey: ['cases'] }),
+          ])
+        }}
+      />
+      <Timeline caseId={id} />
       <header className="rounded-xl bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="text-2xl font-bold">Case #{query.data.case_id}</h1><span className="rounded bg-amber-100 px-3 py-1 text-sm font-semibold">{query.data.status}</span></div>
         <p className="mt-2 text-slate-600">Account {query.data.account_token} Â· Alert #{query.data.alert_id}</p>

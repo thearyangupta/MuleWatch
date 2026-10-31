@@ -1,13 +1,12 @@
 import math
 import os
 import re
-import secrets
 import uuid
 from datetime import date, datetime
 from typing import Literal
 
 import psycopg
-from fastapi import APIRouter, Depends, Header, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from langgraph.types import Command
 from psycopg.rows import dict_row
 from pydantic import BaseModel, ConfigDict, Field
@@ -38,20 +37,10 @@ def traced_config(config: dict, handler) -> dict:
 
 
 def require_reviewer(
-    x_review_api_key: str | None = Header(default=None),
-) -> None:
-    expected = os.getenv("MULEWATCH_REVIEW_API_KEY")
-    if not expected:
-        raise HTTPException(
-            status_code=503,
-            detail="Review authentication is not configured",
-        )
-
-    if not x_review_api_key or not secrets.compare_digest(x_review_api_key, expected):
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid review API key",
-        )
+    user: AuthenticatedUser = Depends(current_user),
+) -> AuthenticatedUser:
+    """Allow authenticated analysts and leads to review cases."""
+    return user
 
 
 def get_case_row(case_id: int) -> dict:

@@ -132,6 +132,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Login */
+        post: operations["login_auth_token_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Me */
+        get: operations["get_me_auth_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/score": {
         parameters: {
             query?: never;
@@ -179,6 +213,16 @@ export interface components {
             /** Status */
             status: string;
         };
+        /** AuthenticatedUser */
+        AuthenticatedUser: {
+            /** Username */
+            username: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "analyst" | "lead";
+        };
         /** BatchScoreRequest */
         BatchScoreRequest: {
             /** Account Ids */
@@ -204,6 +248,30 @@ export interface components {
             model_version: string;
             /** Reasons */
             reasons: components["schemas"]["Reason"][];
+        };
+        /** Body_login_auth_token_post */
+        Body_login_auth_token_post: {
+            /** Grant Type */
+            grant_type?: string | null;
+            /** Username */
+            username: string;
+            /**
+             * Password
+             * Format: password
+             */
+            password: string;
+            /**
+             * Scope
+             * @default
+             */
+            scope: string;
+            /** Client Id */
+            client_id?: string | null;
+            /**
+             * Client Secret
+             * Format: password
+             */
+            client_secret?: string | null;
         };
         /**
          * CaseEvidenceDetail
@@ -294,6 +362,17 @@ export interface components {
             /** Confidence */
             confidence: number;
         };
+        /** DecisionRequest */
+        DecisionRequest: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "approve" | "override" | "escalate";
+            /** Comment */
+            comment: string;
+            final_action?: components["schemas"]["RecommendedAction"] | null;
+        };
         /** Finding */
         Finding: {
             /** Claim */
@@ -341,19 +420,6 @@ export interface components {
          * @enum {string}
          */
         RecommendedAction: "CLOSE_NO_ACTION" | "ENHANCED_MONITORING" | "ESCALATE_TO_INVESTIGATOR";
-        /** ReviewDecision */
-        ReviewDecision: {
-            /**
-             * Decision
-             * @enum {string}
-             */
-            decision: "approve" | "override" | "escalate";
-            /** Reviewer Id */
-            reviewer_id: string;
-            /** Comment */
-            comment: string;
-            final_action?: components["schemas"]["RecommendedAction"] | null;
-        };
         /**
          * RiskRating
          * @enum {string}
@@ -372,6 +438,16 @@ export interface components {
             model_version: string;
             /** Reasons */
             reasons: components["schemas"]["Reason"][];
+        };
+        /** TokenResponse */
+        TokenResponse: {
+            /** Access Token */
+            access_token: string;
+            /**
+             * Token Type
+             * @default bearer
+             */
+            token_type: string;
         };
         /** TypologyMatch */
         TypologyMatch: {
@@ -409,9 +485,7 @@ export interface operations {
     investigate_alert_investigate__alert_id__post: {
         parameters: {
             query?: never;
-            header?: {
-                "x-review-api-key"?: string | null;
-            };
+            header?: never;
             path: {
                 alert_id: number;
             };
@@ -450,9 +524,7 @@ export interface operations {
                 page?: number;
                 page_size?: number;
             };
-            header?: {
-                "x-review-api-key"?: string | null;
-            };
+            header?: never;
             path?: never;
             cookie?: never;
         };
@@ -481,9 +553,7 @@ export interface operations {
     get_alert_investigation_status_cases_alerts__alert_id__status_get: {
         parameters: {
             query?: never;
-            header?: {
-                "x-review-api-key"?: string | null;
-            };
+            header?: never;
             path: {
                 alert_id: number;
             };
@@ -514,9 +584,7 @@ export interface operations {
     get_case_cases__case_id__get: {
         parameters: {
             query?: never;
-            header?: {
-                "x-review-api-key"?: string | null;
-            };
+            header?: never;
             path: {
                 case_id: number;
             };
@@ -547,9 +615,7 @@ export interface operations {
     decide_case_cases__case_id__decision_post: {
         parameters: {
             query?: never;
-            header?: {
-                "x-review-api-key"?: string | null;
-            };
+            header?: never;
             path: {
                 case_id: number;
             };
@@ -557,7 +623,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ReviewDecision"];
+                "application/json": components["schemas"]["DecisionRequest"];
             };
         };
         responses: {
@@ -584,9 +650,7 @@ export interface operations {
     get_case_evidence_cases__case_id__evidence_get: {
         parameters: {
             query?: never;
-            header?: {
-                "x-review-api-key"?: string | null;
-            };
+            header?: never;
             path: {
                 case_id: number;
             };
@@ -617,9 +681,7 @@ export interface operations {
     get_case_audit_cases__case_id__audit_get: {
         parameters: {
             query?: never;
-            header?: {
-                "x-review-api-key"?: string | null;
-            };
+            header?: never;
             path: {
                 case_id: number;
             };
@@ -643,6 +705,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    login_auth_token_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/x-www-form-urlencoded": components["schemas"]["Body_login_auth_token_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_me_auth_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticatedUser"];
                 };
             };
         };

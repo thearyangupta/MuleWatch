@@ -138,19 +138,14 @@ def test_unauthorized_review_rejected():
     assert response.status_code == 401
 
 
-def test_review_api_not_configured():
+def test_legacy_api_key_cannot_access_cases():
     from fastapi.testclient import TestClient
 
     from scoring.api import app
 
-    with patch.dict(
-        "os.environ",
-        {},
-    ):
-        with patch(
-            "api.cases.os.getenv",
-            return_value=None,
-        ):
-            response = TestClient(app).get("/cases")
+    response = TestClient(app).get(
+        "/cases",
+        headers={"X-Review-API-Key": "legacy-test-key"},
+    )
 
-    assert response.status_code == 503
+    assert response.status_code == 401
