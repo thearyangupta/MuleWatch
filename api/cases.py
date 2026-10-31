@@ -10,9 +10,10 @@ import psycopg
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from langgraph.types import Command
 from psycopg.rows import dict_row
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 from agent.graph import CASE_DATABASE_URL, MODEL_NAME, PROMPT_PATH, initial_state
+from agent.report import RecommendedAction
 from agent.review_runtime import review_graph, thread_config
 from agent.state_machine import InvalidTransition, ReviewDecision
 from agent.tracing import (
@@ -20,6 +21,7 @@ from agent.tracing import (
     investigation_trace,
     prompt_version_id,
 )
+from api.auth import AuthenticatedUser, current_user
 
 router = APIRouter(prefix="/cases", tags=["Case Review"])
 
@@ -211,11 +213,26 @@ def get_case(case_id: int):
     return get_case_row(case_id)
 
 
-@router.post(
-    "/{case_id}/decision",
-    dependencies=[Depends(require_reviewer)],
-)
-def decide_case(case_id: int, decision: ReviewDecision):
+class DecisionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    decision: Literal["approve", "override", "escalate"]
+    comment: str = Field(min_length=1, max_length=2000)
+    final_action: RecommendedAction | None = None
+
+
+@router.post("/{case_id}/decision")
+def decide_case(
+    case_id: int,
+    request: DecisionRequest,
+    user: AuthenticatedUser = Depends(current_user),
+):
+    decision = ReviewDecision.model_validate(
+        {
+            **request.model_dump(mode="json"),
+            "reviewer_id": user.username,
+        }
+    )
     with psycopg.connect(CASE_DATABASE_URL) as lock_connection:
         with lock_connection.cursor() as cursor:
             cursor.execute(

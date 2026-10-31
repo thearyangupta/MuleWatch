@@ -10,6 +10,7 @@ from psycopg.rows import dict_row
 from pydantic import BaseModel
 
 from api.audit import router as audit_router
+from api.auth import router as auth_router
 from api.cases import router as cases_router
 from api.investigate import router as investigate_router
 from pipeline.features import build_daily_feature_row
@@ -36,6 +37,7 @@ app = FastAPI(
 app.include_router(investigate_router)
 app.include_router(cases_router)
 app.include_router(audit_router)
+app.include_router(auth_router)
 
 
 class ScoreRequest(BaseModel):
