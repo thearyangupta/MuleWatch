@@ -1,24 +1,25 @@
 from fastapi.testclient import TestClient
 
 from scoring.api import app
+from tests.jwt_helpers import analyst_headers
 
 
 def test_evidence_requires_configured_auth(monkeypatch):
-    monkeypatch.delenv("MULEWATCH_REVIEW_API_KEY", raising=False)
+    monkeypatch.delenv("MULEWATCH_JWT_SECRET", raising=False)
     response = TestClient(app).get("/cases/1/evidence")
-    assert response.status_code == 503
+    assert response.status_code == 401
 
 
 def test_evidence_rejects_missing_key(monkeypatch):
-    monkeypatch.setenv("MULEWATCH_REVIEW_API_KEY", "test-review-key")
+    analyst_headers(monkeypatch)
     response = TestClient(app).get("/cases/1/evidence")
     assert response.status_code == 401
 
 
 def test_evidence_rejects_invalid_key(monkeypatch):
-    monkeypatch.setenv("MULEWATCH_REVIEW_API_KEY", "test-review-key")
+    analyst_headers(monkeypatch)
     response = TestClient(app).get(
-        "/cases/1/evidence", headers={"X-Review-API-Key": "wrong-key"}
+        "/cases/1/evidence", headers={"Authorization": "Bearer invalid-token"}
     )
     assert response.status_code == 401
 
@@ -28,7 +29,7 @@ def test_evidence_endpoint_returns_masked_data(monkeypatch):
 
     from api import cases
 
-    monkeypatch.setenv("MULEWATCH_REVIEW_API_KEY", "test-review-key")
+    headers = analyst_headers(monkeypatch)
 
     row = {
         "case_id": 42,
@@ -70,7 +71,7 @@ def test_evidence_endpoint_returns_masked_data(monkeypatch):
 
     response = TestClient(app).get(
         "/cases/42/evidence",
-        headers={"X-Review-API-Key": "test-review-key"},
+        headers=headers,
     )
 
     assert response.status_code == 200, response.text
@@ -91,7 +92,7 @@ def test_evidence_endpoint_warns_on_missing_citations(monkeypatch):
 
     from api import cases
 
-    monkeypatch.setenv("MULEWATCH_REVIEW_API_KEY", "test-review-key")
+    headers = analyst_headers(monkeypatch)
 
     row = {
         "case_id": 42,
@@ -126,7 +127,7 @@ def test_evidence_endpoint_warns_on_missing_citations(monkeypatch):
 
     response = TestClient(app).get(
         "/cases/42/evidence",
-        headers={"X-Review-API-Key": "test-review-key"},
+        headers=headers,
     )
 
     assert response.status_code == 200, response.text
@@ -140,7 +141,7 @@ def test_evidence_endpoint_returns_404_for_missing_case(monkeypatch):
 
     from api import cases
 
-    monkeypatch.setenv("MULEWATCH_REVIEW_API_KEY", "test-review-key")
+    headers = analyst_headers(monkeypatch)
 
     cursor = MagicMock()
     cursor.fetchone.return_value = None
@@ -158,7 +159,7 @@ def test_evidence_endpoint_returns_404_for_missing_case(monkeypatch):
 
     response = TestClient(app).get(
         "/cases/999999/evidence",
-        headers={"X-Review-API-Key": "test-review-key"},
+        headers=headers,
     )
 
     assert response.status_code == 404
@@ -169,7 +170,7 @@ def test_evidence_endpoint_blocks_sensitive_report_and_reasons(monkeypatch):
 
     from api import cases
 
-    monkeypatch.setenv("MULEWATCH_REVIEW_API_KEY", "test-review-key")
+    headers = analyst_headers(monkeypatch)
     secret = "PRIVATE_TEST_CUSTOMER_98765"
 
     row = {
@@ -222,7 +223,7 @@ def test_evidence_endpoint_blocks_sensitive_report_and_reasons(monkeypatch):
 
     response = TestClient(app).get(
         "/cases/42/evidence",
-        headers={"X-Review-API-Key": "test-review-key"},
+        headers=headers,
     )
 
     assert response.status_code == 200, response.text

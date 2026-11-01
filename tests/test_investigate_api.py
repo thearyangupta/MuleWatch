@@ -8,6 +8,7 @@ from langchain_core.messages import AIMessage
 from agent.evidence import create_evidence
 from agent.report import CaseReport
 from scoring.api import app
+from tests.jwt_helpers import analyst_headers
 
 
 class FakeModel:
@@ -110,10 +111,12 @@ def fake_connect(dsn, **kwargs):
 
 @pytest.fixture(autouse=True)
 def configure_reviewer_key(monkeypatch):
-    monkeypatch.setenv("MULEWATCH_REVIEW_API_KEY", "ci-test-reviewer-key")
+    monkeypatch.setenv(
+        "MULEWATCH_JWT_SECRET", "mulewatch-ci-test-secret-at-least-32-characters"
+    )
 
 
-def test_investigate_endpoint():
+def test_investigate_endpoint(monkeypatch):
     from api.cases import StartInvestigationResponse
 
     expected = StartInvestigationResponse(
@@ -127,7 +130,7 @@ def test_investigate_endpoint():
         return_value=expected,
     ):
         response = TestClient(app).post(
-            "/investigate/1", headers={"X-Review-API-Key": "ci-test-reviewer-key"}
+            "/investigate/1", headers=analyst_headers(monkeypatch)
         )
 
     assert response.status_code == 200
@@ -139,9 +142,9 @@ def test_investigate_endpoint():
     assert body["report"]["recommended_action"] == "ENHANCED_MONITORING"
 
 
-def test_invalid_alert_id():
+def test_invalid_alert_id(monkeypatch):
     response = TestClient(app).post(
-        "/investigate/0", headers={"X-Review-API-Key": "ci-test-reviewer-key"}
+        "/investigate/0", headers=analyst_headers(monkeypatch)
     )
 
     assert response.status_code == 422

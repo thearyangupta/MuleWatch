@@ -1,11 +1,11 @@
 from fastapi.testclient import TestClient
 
 from scoring.api import app
+from tests.jwt_helpers import analyst_headers
 
 
 def _headers(monkeypatch):
-    monkeypatch.setenv("MULEWATCH_REVIEW_API_KEY", "day2-test-key")
-    return {"x-review-api-key": "day2-test-key"}
+    return analyst_headers(monkeypatch)
 
 
 def test_queue_requires_auth(monkeypatch):
