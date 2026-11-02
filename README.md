@@ -177,7 +177,7 @@ License not yet specified.
 ## Current Evaluation Quality
 
 MuleWatch maintains a frozen 35-case evaluation dataset.
-The latest Day 4 smoke experiment evaluated five cases
+The latest smoke experiment evaluated five cases
 under each of three configurations.
 
 | Quality indicator | Current observation |
@@ -202,3 +202,14 @@ calibration, and blocked-regression demonstration remain pending.
 
 See [Evaluation Framework](docs/EVALS.md) and
 [Experiment Results](docs/EXPERIMENTS.md).
+## Analyst screen
+
+React + TypeScript: queue, citation-linked case view, decision flow, audit and lead-only ops.
+
+After configuring local JWT credentials, start the stack with `docker compose up --build -d`.
+Open http://localhost:8080.
+
+Frontend checks: `cd web; npm ci; npm run lint; npm run typecheck; npm run test; npm run test:e2e`.
+
+The Playwright browser test uses HTTP fixtures, not a live database. Evaluation and cost
+metrics remain marked unmeasured until actual results are available.

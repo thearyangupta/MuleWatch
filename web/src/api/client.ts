@@ -164,3 +164,10 @@ export async function fetchCaseAudit(
   await checkResponse(response)
   return (await response.json()) as CaseAudit
 }
+
+export type OpsSummary = operations['get_ops_summary_ops_summary_get']['responses'][200]['content']['application/json']
+export async function fetchOpsSummary(signal?: AbortSignal): Promise<OpsSummary> {
+  const response = await authenticatedFetch(urlFor('/ops/summary'), { signal, headers: { Accept: 'application/json' } })
+  await checkResponse(response)
+  return (await response.json()) as OpsSummary
+}

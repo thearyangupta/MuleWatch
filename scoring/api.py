@@ -13,6 +13,7 @@ from api.audit import router as audit_router
 from api.auth import router as auth_router
 from api.cases import router as cases_router
 from api.investigate import router as investigate_router
+from api.ops import router as ops_router
 from pipeline.features import build_daily_feature_row
 from scoring.train import FEATURE_COLUMNS, get_shap_reasons
 
@@ -38,6 +39,7 @@ app.include_router(investigate_router)
 app.include_router(cases_router)
 app.include_router(audit_router)
 app.include_router(auth_router)
+app.include_router(ops_router)
 
 
 class ScoreRequest(BaseModel):

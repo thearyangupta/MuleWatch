@@ -36,5 +36,13 @@ services:
       postgres:
         condition: service_healthy
 
+  web:
+    build:
+      context: ./web
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+
 volumes:
   mulewatch_postgres_data:

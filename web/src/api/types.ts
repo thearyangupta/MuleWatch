@@ -166,6 +166,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/ops/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Ops Summary */
+        get: operations["get_ops_summary_ops_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/score": {
         parameters: {
             query?: never;
@@ -204,6 +221,16 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AlertDay */
+        AlertDay: {
+            /**
+             * Alert Date
+             * Format: date
+             */
+            alert_date: string;
+            /** Alert Count */
+            alert_count: number;
+        };
         /** AlertInvestigationStatus */
         AlertInvestigationStatus: {
             /** Alert Id */
@@ -393,6 +420,24 @@ export interface components {
             status: string;
             report: components["schemas"]["CaseReport"] | null;
         };
+        /** OpsSummary */
+        OpsSummary: {
+            /** Pipeline */
+            pipeline: components["schemas"]["PipelineDay"][];
+            /** Alerts By Day */
+            alerts_by_day: components["schemas"]["AlertDay"][];
+            review_quality: components["schemas"]["ReviewQuality"];
+            /** Evaluation */
+            evaluation: {
+                [key: string]: unknown;
+            } | null;
+            /** Evaluation Status */
+            evaluation_status: string;
+            /** Average Cost Usd */
+            average_cost_usd: number | null;
+            /** Cost Status */
+            cost_status: string;
+        };
         /** PaginatedCases */
         PaginatedCases: {
             /** Items */
@@ -405,6 +450,22 @@ export interface components {
             total: number;
             /** Total Pages */
             total_pages: number;
+        };
+        /** PipelineDay */
+        PipelineDay: {
+            /**
+             * Run Date
+             * Format: date
+             */
+            run_date: string;
+            /** Rows In */
+            rows_in: number;
+            /** Rows Quarantined */
+            rows_quarantined: number;
+            /** Accounts Scored */
+            accounts_scored: number;
+            /** Alerts Raised */
+            alerts_raised: number;
         };
         /** Reason */
         Reason: {
@@ -420,6 +481,17 @@ export interface components {
          * @enum {string}
          */
         RecommendedAction: "CLOSE_NO_ACTION" | "ENHANCED_MONITORING" | "ESCALATE_TO_INVESTIGATOR";
+        /** ReviewQuality */
+        ReviewQuality: {
+            /** Reviewed Cases */
+            reviewed_cases: number;
+            /** Compared Cases */
+            compared_cases: number;
+            /** Agreed Cases */
+            agreed_cases: number;
+            /** Agreement Rate */
+            agreement_rate: number | null;
+        };
         /**
          * RiskRating
          * @enum {string}
@@ -758,6 +830,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuthenticatedUser"];
+                };
+            };
+        };
+    };
+    get_ops_summary_ops_summary_get: {
+        parameters: {
+            query?: {
+                days?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpsSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
