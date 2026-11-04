@@ -1,9 +1,15 @@
+from __future__ import annotations
+
 import os
 from collections import defaultdict
+from typing import TYPE_CHECKING
 
 import psycopg
 from pgvector.psycopg import register_vector
-from sentence_transformers import SentenceTransformer
+
+if TYPE_CHECKING:
+    from sentence_transformers import SentenceTransformer
+
 
 DATABASE_URL = os.getenv(
     "MULEWATCH_DATABASE_URL",
@@ -16,8 +22,10 @@ SEARCH_LIMIT = 20
 RRF_K = 60
 
 
-def load_embedding_model() -> SentenceTransformer:
+def load_embedding_model():
     """Load the same embedding model used during ingestion."""
+
+    from sentence_transformers import SentenceTransformer
 
     return SentenceTransformer(EMBEDDING_MODEL_NAME)
 

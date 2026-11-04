@@ -5,6 +5,8 @@ description = "AI investigation copilot for money-mule alerts"
 requires-python = ">=3.14"
 
 dependencies = [
+    "pgvector",
+    "sentence-transformers>=6.1,<7",
     "faker",
     "pandas",
     "pandera[pandas]",
