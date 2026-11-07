@@ -155,10 +155,32 @@ def reciprocal_rank_fusion(
         reverse=True,
     )
 
+    # Prefer distinct documents before returning additional chunks.
+    # Preserve the original RRF ranking within each selection pass.
+    selected_ids = []
+    deferred_ids = []
+    seen_documents = set()
+
+    for chunk_id in ranked_ids:
+        result = results_by_id[chunk_id]
+        document_key = (result.get("source"), result.get("title"))
+
+        if document_key in seen_documents:
+            deferred_ids.append(chunk_id)
+        else:
+            seen_documents.add(document_key)
+            selected_ids.append(chunk_id)
+
+        if len(selected_ids) >= limit:
+            break
+
+    if len(selected_ids) < limit:
+        selected_ids.extend(deferred_ids[: limit - len(selected_ids)])
+
     results = []
 
-    for chunk_id in ranked_ids[:limit]:
-        result = results_by_id[chunk_id]
+    for chunk_id in selected_ids:
+        result = results_by_id[chunk_id].copy()
         result["rrf_score"] = scores[chunk_id]
         results.append(result)
 
