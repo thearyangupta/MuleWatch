@@ -15,7 +15,7 @@ from api.cases import router as cases_router
 from api.investigate import router as investigate_router
 from api.ops import router as ops_router
 from pipeline.features import build_daily_feature_row
-from scoring.train import FEATURE_COLUMNS, get_shap_reasons
+from scoring.train import FEATURE_COLUMNS, get_batch_shap_reasons, get_shap_reasons
 
 DATABASE_URL = os.getenv(
     "MULEWATCH_DATABASE_URL",
@@ -209,19 +209,20 @@ def score_batch(
 
     probabilities = model.predict_proba(features)[:, 1]
 
+    batch_reasons = get_batch_shap_reasons(
+        model=model,
+        feature_rows=feature_rows,
+        top_n=3,
+    )
+
     scores = []
 
-    for row, probability in zip(
+    for row, probability, reasons in zip(
         feature_rows,
         probabilities,
+        batch_reasons,
         strict=True,
     ):
-        reasons = get_shap_reasons(
-            model=model,
-            feature_row=row,
-            top_n=3,
-        )
-
         scores.append(
             BatchScoreResult(
                 account_id=row["account_id"],

@@ -128,6 +128,8 @@ def require_lead(user: AuthenticatedUser = Depends(current_user)) -> Authenticat
 
 @router.post("/token", response_model=TokenResponse)
 def login(form: OAuth2PasswordRequestForm = Depends()):
+    # Fail closed before password verification if JWT signing is unavailable.
+    signing_secret()
     user = authenticate(form.username, form.password)
     return TokenResponse(access_token=create_access_token(user))
 

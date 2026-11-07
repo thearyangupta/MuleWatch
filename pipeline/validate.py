@@ -340,6 +340,9 @@ def validate_staged_transactions(
         )
 
         if quarantine_rate > QUARANTINE_THRESHOLD:
+            # Preserve rejected-row evidence before failing the batch.
+            # Clean transactions have not yet been upserted.
+            connection.commit()
             raise ValueError(
                 "Quarantine rate "
                 f"{quarantine_rate:.2%} "

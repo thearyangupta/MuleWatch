@@ -19,7 +19,7 @@ SCORING_API_URL = os.getenv(
     "http://127.0.0.1:8000",
 )
 
-SCORE_BATCH_SIZE = 500
+SCORE_BATCH_SIZE = 50
 
 
 def get_active_account_ids(
@@ -244,7 +244,7 @@ def score_features_for_date(
                         "account_ids": account_chunk,
                         "feature_date": (feature_date.isoformat()),
                     },
-                    timeout=30.0,
+                    timeout=120.0,
                 )
 
                 response.raise_for_status()

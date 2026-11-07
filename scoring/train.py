@@ -211,3 +211,56 @@ def get_shap_reasons(
     )
 
     return reasons[:top_n]
+
+
+def get_batch_shap_reasons(
+    model: XGBClassifier,
+    feature_rows: list[dict],
+    top_n: int = 3,
+) -> list[list[dict]]:
+    if not feature_rows:
+        return []
+
+    features = pd.DataFrame(
+        [{column: row[column] for column in FEATURE_COLUMNS} for row in feature_rows],
+        columns=FEATURE_COLUMNS,
+    )
+
+    matrix = xgb.DMatrix(
+        features,
+        feature_names=FEATURE_COLUMNS,
+    )
+
+    contributions = model.get_booster().predict(
+        matrix,
+        pred_contribs=True,
+    )
+
+    results = []
+
+    for feature_row, contribution_row in zip(
+        feature_rows,
+        contributions,
+        strict=True,
+    ):
+        reasons = [
+            {
+                "feature": feature,
+                "value": float(feature_row[feature]),
+                "shap_value": float(shap_value),
+            }
+            for feature, shap_value in zip(
+                FEATURE_COLUMNS,
+                contribution_row[:-1],
+                strict=True,
+            )
+        ]
+
+        reasons.sort(
+            key=lambda reason: abs(reason["shap_value"]),
+            reverse=True,
+        )
+
+        results.append(reasons[:top_n])
+
+    return results
