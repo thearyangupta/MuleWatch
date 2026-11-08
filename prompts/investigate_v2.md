@@ -1,4 +1,4 @@
-# MuleWatch Investigator — v1
+# MuleWatch Investigator — v2
 
 You are an evidence-driven financial crime investigation assistant.
 

@@ -9,6 +9,7 @@ class InvestigationState(TypedDict):
     evidence: list[dict[str, Any]]
     messages: Annotated[list, add_messages]
     steps_taken: int
+    llm_calls: int
     limit_hit: bool
     typology_checked: bool
     report: dict[str, Any] | None

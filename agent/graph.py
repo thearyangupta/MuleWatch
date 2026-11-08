@@ -42,6 +42,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 load_dotenv(dotenv_path=PROJECT_ROOT / ".env")
 
 MAX_STEPS = 6
+MAX_LLM_CALLS = 8
 
 DATABASE_URL = os.getenv(
     "MULEWATCH_DATABASE_URL",
@@ -253,7 +254,7 @@ def investigate(
 
     return {
         "messages": [safe_response],
-        "steps_taken": state["steps_taken"] + 1,
+        "llm_calls": state.get("llm_calls", 0) + 1,
         "input_tokens": state["input_tokens"] + input_tokens,
         "output_tokens": state["output_tokens"] + output_tokens,
         "estimated_cost_usd": (state["estimated_cost_usd"] + estimated_cost),
@@ -275,6 +276,7 @@ def execute_tools(
     evidence_items = list(state["evidence"])
     typology_checked = state["typology_checked"]
     steps_taken = state["steps_taken"]
+    limit_hit = state.get("limit_hit", False)
 
     reserved = 0 if typology_checked else 1
 
@@ -289,6 +291,7 @@ def execute_tools(
         )
 
         if not permitted:
+            limit_hit = True
             result = {
                 "ok": False,
                 "error": {
@@ -374,13 +377,14 @@ def execute_tools(
         "evidence": evidence_items,
         "typology_checked": typology_checked,
         "steps_taken": steps_taken,
+        "limit_hit": limit_hit or steps_taken >= MAX_STEPS,
     }
 
 
 def route_after_investigate(
     state: InvestigationState,
 ) -> Literal["tools", "ensure_typology"]:
-    if state["steps_taken"] >= MAX_STEPS:
+    if state["steps_taken"] >= MAX_STEPS or state.get("llm_calls", 0) >= MAX_LLM_CALLS:
         return "ensure_typology"
 
     last_message = state["messages"][-1]
@@ -396,7 +400,10 @@ def route_after_tools(
 ) -> Literal["investigate", "ensure_typology"]:
     reserved = 0 if state["typology_checked"] else 1
 
-    if state["steps_taken"] + reserved >= MAX_STEPS:
+    if (
+        state["steps_taken"] + reserved >= MAX_STEPS
+        or state.get("llm_calls", 0) >= MAX_LLM_CALLS
+    ):
         return "ensure_typology"
 
     return "investigate"
@@ -667,6 +674,8 @@ def write_investigation_audit(cursor, state: InvestigationState) -> None:
         details={
             "status": state["status"],
             "steps_taken": state["steps_taken"],
+            "llm_calls": state.get("llm_calls", 0),
+            "limit_hit": state.get("limit_hit", False),
             "typology_checked": state["typology_checked"],
             "input_tokens_total": state["input_tokens"],
             "output_tokens_total": state["output_tokens"],
@@ -1037,6 +1046,7 @@ def initial_state(
         "evidence": [],
         "messages": [],
         "steps_taken": 0,
+        "llm_calls": 0,
         "limit_hit": False,
         "typology_checked": False,
         "report": None,
