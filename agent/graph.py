@@ -491,30 +491,40 @@ def assess(
             "validation_error": fallback.reason,
         }
 
-    try:
-        report = generate_report(
-            model,
-            privacy.mask(state["alert"]),
-            privacy.mask(state["evidence"]),
-        )
+    for attempt in range(2):
+        try:
+            report = generate_report(
+                model,
+                privacy.mask(state["alert"]),
+                privacy.mask(state["evidence"]),
+                feedback=(
+                    "Previous structured report generation failed. "
+                    "Retry using only supplied evidence."
+                    if attempt
+                    else ""
+                ),
+            )
 
-        return {
-            "status": "VERIFYING",
-            "report": privacy.mask(report.model_dump(mode="json")),
-            "validation_error": "",
-        }
+            return {
+                "status": "VERIFYING",
+                "report": privacy.mask(report.model_dump(mode="json")),
+                "validation_error": "",
+            }
 
-    except PrivacyError:
-        raise
+        except PrivacyError:
+            raise
 
-    except Exception:
-        fallback = manual_review("Automated report generation failed.")
+        except Exception:
+            if attempt == 0:
+                continue
 
-        return {
-            "status": fallback.status,
-            "report": None,
-            "validation_error": fallback.reason,
-        }
+    fallback = manual_review("Automated report generation failed after retry.")
+
+    return {
+        "status": fallback.status,
+        "report": None,
+        "validation_error": fallback.reason,
+    }
 
 
 def verify(
