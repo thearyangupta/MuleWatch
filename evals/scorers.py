@@ -22,6 +22,9 @@ def escalation_counts(report, gold):
     if not _reviewed(gold) or not gold.get("acceptable_actions"):
         return None
 
+    if not report:
+        return None
+
     acceptable = set(gold["acceptable_actions"])
 
     # A case allowing both escalation and non-escalation
@@ -110,10 +113,23 @@ def abstention_correctness(status, gold):
 
 
 def step_metrics(steps, limit_hit, maximum=6):
+    if (
+        not isinstance(steps, int)
+        or isinstance(steps, bool)
+        or steps < 0
+        or not isinstance(maximum, int)
+        or maximum < 1
+    ):
+        return {
+            "steps": None,
+            "limit_hit": None,
+            "within_budget": None,
+        }
+
     return {
         "steps": steps,
         "limit_hit": bool(limit_hit),
-        "within_budget": steps <= maximum,
+        "within_budget": steps <= maximum and not bool(limit_hit),
     }
 
 
@@ -147,7 +163,15 @@ def summarize(rows):
     ]
 
     def section(items):
-        result = {"cases": len(items)}
+        result = {
+            "cases": len(items),
+            "graph_executed": sum(row.get("graph_executed") is True for row in items),
+            "graph_errors": sum(row.get("status") == "GRAPH_ERROR" for row in items),
+            "reviewed_cases": sum(
+                row.get("scored") is True and row.get("label_status") == "REVIEWED"
+                for row in items
+            ),
+        }
 
         for metric in metrics:
             valid = [float(row[metric]) for row in items if row.get(metric) is not None]
@@ -174,8 +198,23 @@ def summarize(rows):
 
         result["step_limit_hits"] = sum(bool(row.get("limit_hit")) for row in items)
 
+        measured_steps = [
+            row["steps"]
+            for row in items
+            if row.get("graph_executed") is True
+            and isinstance(row.get("steps"), int)
+            and not isinstance(row["steps"], bool)
+        ]
+
         result["mean_steps"] = (
-            sum(row.get("steps", 0) for row in items) / len(items) if items else None
+            sum(measured_steps) / len(measured_steps) if measured_steps else None
+        )
+        result["mean_steps_n"] = len(measured_steps)
+        result["step_budget_pass_rate"] = (
+            sum(row["within_step_budget"] is True for row in items)
+            / len([row for row in items if row.get("within_step_budget") is not None])
+            if any(row.get("within_step_budget") is not None for row in items)
+            else None
         )
 
         return result

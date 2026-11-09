@@ -84,12 +84,15 @@ class SafeTracingHandler(BaseCallbackHandler):
         self.root = root
         self.runs = {}
         self.started = {}
+        self.error_counts = {"llm": 0, "tool": 0, "chain": 0}
 
     def record_metrics(self, state: dict) -> None:
         try:
             metrics = safe_investigation_metrics(state)
-            if metrics:
-                self.root.update(metadata=metrics)
+            metrics["llm_errors"] = self.error_counts["llm"]
+            metrics["tool_errors"] = self.error_counts["tool"]
+            metrics["chain_errors"] = self.error_counts["chain"]
+            self.root.update(metadata=metrics)
         except Exception:
             logger.warning("Tracing metrics update failed", exc_info=False)
 
@@ -152,6 +155,7 @@ class SafeTracingHandler(BaseCallbackHandler):
         self._end(run_id, status="completed")
 
     def on_chain_error(self, error, *, run_id, **kwargs):
+        self.error_counts["chain"] += 1
         self._end(run_id, status="error")
 
     def on_chat_model_start(
@@ -162,16 +166,30 @@ class SafeTracingHandler(BaseCallbackHandler):
     def on_llm_end(self, response, *, run_id, **kwargs):
         input_tokens = 0
         output_tokens = 0
+        usage_found = False
         try:
             for group in response.generations:
                 for generation in group:
-                    usage = getattr(generation.message, "usage_metadata", None) or {}
-                    input_tokens += usage.get("input_tokens", 0)
-                    output_tokens += usage.get("output_tokens", 0)
+                    message = getattr(generation, "message", None)
+                    usage = getattr(message, "usage_metadata", None)
+                    if not isinstance(usage, dict):
+                        continue
+                    incoming = usage.get("input_tokens")
+                    outgoing = usage.get("output_tokens")
+                    if (
+                        type(incoming) is int
+                        and incoming >= 0
+                        and type(outgoing) is int
+                        and outgoing >= 0
+                    ):
+                        usage_found = True
+                        input_tokens += incoming
+                        output_tokens += outgoing
         except AttributeError, TypeError, ValueError:
             pass
+
         observation = self.runs.get(run_id)
-        if observation is not None:
+        if observation is not None and usage_found:
             try:
                 observation.update(
                     usage_details={"input": input_tokens, "output": output_tokens}
@@ -181,6 +199,7 @@ class SafeTracingHandler(BaseCallbackHandler):
         self._end(run_id, status="completed")
 
     def on_llm_error(self, error, *, run_id, **kwargs):
+        self.error_counts["llm"] += 1
         self._end(run_id, status="error")
 
     def on_tool_start(
@@ -203,6 +222,7 @@ class SafeTracingHandler(BaseCallbackHandler):
         self._end(run_id, status="completed")
 
     def on_tool_error(self, error, *, run_id, **kwargs):
+        self.error_counts["tool"] += 1
         self._end(run_id, status="error")
 
 
@@ -214,6 +234,7 @@ def investigation_trace(
     prompt_version: str,
     git_sha: str,
     correlation_seed: str | None = None,
+    case_tag: str | None = None,
 ):
     if not tracing_enabled():
         yield None
@@ -236,6 +257,7 @@ def investigation_trace(
                 "model": model,
                 "prompt_version": prompt_version,
                 "git_sha": git_sha,
+                **({"case_tag": case_tag} if case_tag else {}),
             },
         )
     except Exception:

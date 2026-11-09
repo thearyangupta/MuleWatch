@@ -213,3 +213,18 @@ Frontend checks: `cd web; npm ci; npm run lint; npm run typecheck; npm run test;
 
 The Playwright browser test uses HTTP fixtures, not a live database. Evaluation and cost
 metrics remain marked unmeasured until actual results are available.
+
+### CI quality gate
+
+| Check | Current status |
+| --- | --- |
+| Fast repository CI | Configured |
+| Offline evaluation gate | Implemented |
+| Manual full-artifact gate | Configured |
+| Independent human review | Pending |
+| Full 35-case quality acceptance | Not measured |
+| Live API spending limiter | Pending |
+| Blocked GitHub PR demonstration | Pending |
+
+The full evaluation gate checks an existing result artifact
+without making model calls. See [Evaluation Framework](docs/EVALS.md).

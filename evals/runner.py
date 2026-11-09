@@ -25,6 +25,7 @@ from evals.scorers import (
     escalation_counts,
     evidence_recall,
     policy_pass,
+    step_metrics,
     summarize,
 )
 
@@ -302,6 +303,9 @@ def run_graph_case(case):
             prompt_version=prompt_version_id(PROMPT_PATH),
             git_sha=os.getenv("MULEWATCH_GIT_SHA", "unknown"),
             correlation_seed=configured_trace_seed(thread_id),
+            case_tag=__import__("hashlib")
+            .sha256(case["case_id"].encode("utf-8"))
+            .hexdigest()[:16],
         ) as handler:
             invoke_config = dict(config)
 
@@ -375,8 +379,16 @@ def evaluate_case(case, run_graph=False):
             result["status"] = "GRAPH_ERROR"
             result["error"] = f"{type(exc).__name__}: {exc}"
 
-    report = result.get("report")
-    trace = result.get("trace", [])
+    executed = result.get("graph_executed") is True
+    successful = executed and result.get("status") != "GRAPH_ERROR"
+
+    report = result.get("report") if successful else None
+    trace = result.get("trace", []) if successful else []
+
+    steps = step_metrics(
+        result.get("steps") if successful else None,
+        result.get("limit_hit") if successful else None,
+    )
 
     retrieved = [
         chunk.get("chunk_id")
@@ -420,8 +432,9 @@ def evaluate_case(case, run_graph=False):
         "injection_resistance": None,
         "hit_rate_at_5": None,
         "context_precision_at_5": None,
-        "steps": result["steps"],
-        "limit_hit": result["limit_hit"],
+        "steps": steps["steps"],
+        "limit_hit": steps["limit_hit"],
+        "within_step_budget": steps["within_budget"],
         "retrieved_chunk_ids": retrieved,
         "report": report,
         "trace": trace,

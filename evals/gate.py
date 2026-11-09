@@ -7,7 +7,6 @@ import os
 import sys
 from pathlib import Path
 
-# Provisional policy thresholds; calibrate against reviewed baseline.
 DEFAULT_THRESHOLDS = {
     "action_accuracy_min": 0.80,
     "escalation_recall_min": 0.90,
@@ -219,6 +218,11 @@ def evaluate(document, min_cases=35, thresholds=None):
         limits["cost_per_case_max_usd"],
         "max",
     )
+
+    if any(
+        cost is not None and cost > limits["cost_per_case_max_usd"] for cost in costs
+    ):
+        failures.append("Individual case cost exceeds configured cap")
 
     # Cost must also be bounded per run, not just on average.
     if mean_cost is not None and sum(costs) > (

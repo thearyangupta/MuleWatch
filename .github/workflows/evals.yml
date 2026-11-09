@@ -5,6 +5,12 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      results_path:
+        description: "Repository-relative consolidated evaluation JSON"
+        required: true
+        default: "evals/results/full_evaluation.json"
+        type: string
 
 permissions:
   contents: read
@@ -46,3 +52,46 @@ jobs:
             echo "- No paid LLM calls permitted in this job"
             echo "- Production acceptance remains pending reviewed labels"
           } >> "$GITHUB_STEP_SUMMARY"
+
+
+  full-eval-artifact:
+    name: Full Evaluation Artifact Gate
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Validate selected artifact path
+        env:
+          RESULTS_PATH: ${{ inputs.results_path }}
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+
+          root = Path.cwd().resolve()
+          path = (root / os.environ["RESULTS_PATH"]).resolve()
+          allowed = root / "evals" / "results"
+
+          if not path.is_relative_to(allowed):
+              raise SystemExit("BLOCKED: artifact outside evals/results")
+
+          if path.suffix != ".json" or not path.is_file():
+              raise SystemExit("BLOCKED: evaluation JSON not available")
+
+          print("Evaluation artifact:", path.relative_to(root))
+          PY
+
+      - name: Run full quality gate
+        env:
+          RESULTS_PATH: ${{ inputs.results_path }}
+        run: python -m evals.gate "$RESULTS_PATH"

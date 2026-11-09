@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import statistics
 import subprocess
 import time
 from collections import Counter
@@ -42,6 +43,11 @@ def configs():
             "name": "step_limit_4",
             "prompt": PROMPTS / "investigate_v1.md",
             "step_limit": 4,
+        },
+        {
+            "name": "step_limit_5",
+            "prompt": PROMPTS / "investigate_v1.md",
+            "step_limit": 5,
         },
     ]
 
@@ -102,6 +108,51 @@ def run_case(case, config):
     }
 
 
+def summarize_experiments(document):
+    """Aggregate only actual measurements; retain missing-value counts."""
+    summary = {}
+
+    for config in document["signature"]["configurations"]:
+        name = config["name"]
+        rows = [
+            row
+            for key, row in document["results"].items()
+            if key.split("|", 1)[0] == name
+        ]
+
+        section = {
+            "runs": len(rows),
+            "graph_executed": sum(row.get("graph_executed") is True for row in rows),
+            "graph_errors": sum(row.get("status") == "GRAPH_ERROR" for row in rows),
+        }
+
+        for metric in (
+            "action_accuracy",
+            "citation_validity",
+            "policy_pass",
+            "abstention_correctness",
+            "steps",
+            "latency_seconds",
+        ):
+            values = [
+                float(row[metric])
+                for row in rows
+                if row.get("graph_executed") is True
+                and row.get("status") != "GRAPH_ERROR"
+                and type(row.get(metric)) in (int, float, bool)
+            ]
+
+            section[metric] = {
+                "n": len(values),
+                "mean": statistics.mean(values) if values else None,
+                "spread": (statistics.pstdev(values) if len(values) > 1 else None),
+            }
+
+        summary[name] = section
+
+    return summary
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--max-cases", type=int, default=5)
@@ -109,7 +160,7 @@ def main():
     parser.add_argument(
         "--only",
         nargs="*",
-        choices=("baseline", "prompt_v2", "step_limit_4"),
+        choices=("baseline", "prompt_v2", "step_limit_4", "step_limit_5"),
     )
     parser.add_argument(
         "--run-id",
@@ -214,6 +265,13 @@ def main():
     print("\nRESULTS:", path)
     print("Completed:", len(document["results"]), "/", total)
     print("Statuses:", dict(statuses))
+    document["comparison"] = summarize_experiments(document)
+    save_atomic(path, document)
+
+    print(
+        json.dumps(document["comparison"], indent=2),
+        flush=True,
+    )
     print("Smoke test finished; no production config selected.")
 
 

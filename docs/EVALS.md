@@ -136,3 +136,36 @@ Check the saved smoke evaluation:
 
 The smoke evaluation is expected to fail acceptance because
 required evidence is unavailable.
+
+## CI Integration
+
+The normal CI workflow runs existing repository checks without
+requesting paid LLM evaluations.
+
+The evaluation workflow has two paths:
+
+- Push/PR: deterministic, offline quality-gate tests.
+- Manual dispatch: validate an existing consolidated evaluation
+  JSON artifact using `python -m evals.gate`.
+
+Manual dispatch does not execute the investigation graph.
+The selected JSON must already exist in the checked-out
+repository under `evals/results/`.
+
+The artifact must contain a `signature` with one selected
+configuration and frozen case IDs, plus a `results` mapping
+with complete, independently reviewed case measurements.
+
+The gate fails closed on missing labels, incomplete coverage,
+unmeasured required metrics, graph errors, threshold failures,
+and missing or excessive measured costs.
+
+The cost gate evaluates reported expenditure. It is not a
+runtime API spending limiter.
+
+The existing false-escalation regression test verifies that
+the offline gate rejects a deliberately degraded result.
+An actual blocked GitHub pull request and branch-protection
+enforcement still require separate verification.
+
+Current production-quality acceptance: PENDING.
