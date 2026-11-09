@@ -59,6 +59,13 @@ jobs:
           psql -v ON_ERROR_STOP=1 -h localhost -U mulewatch -d mulewatch_test -c "CREATE DATABASE mulewatch;"
           psql -v ON_ERROR_STOP=1 -h localhost -U mulewatch -d mulewatch_test -f db/roles.sql
 
+      - name: Apply review and audit migrations
+        env:
+          PGPASSWORD: mulewatch_dev
+        run: |
+          psql -v ON_ERROR_STOP=1 -h localhost -U mulewatch -d mulewatch_test -f db/review.sql
+          psql -v ON_ERROR_STOP=1 -h localhost -U mulewatch -d mulewatch_test -f db/audit.sql
+
       - name: Build typology knowledge base
         run: python rag/ingest.py
 

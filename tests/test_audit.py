@@ -1,5 +1,3 @@
-"""Unit tests for MuleWatch audit-chain integrity."""
-
 from copy import deepcopy
 from datetime import datetime, timezone
 
@@ -119,3 +117,30 @@ def test_different_actions_produce_different_hashes():
     second = make_event(1, GENESIS_HASH, "CASE_FINALIZED")
 
     assert first["event_hash"] != second["event_hash"]
+
+
+def test_missing_middle_audit_event_is_detected():
+    first = make_event(1, GENESIS_HASH, "CASE_SAVED")
+    middle = make_event(2, first["event_hash"], "HUMAN_DECISION_RECORDED")
+    last = make_event(3, middle["event_hash"], "CASE_FINALIZED")
+
+    valid, _ = verify_rows([first, last])
+    assert valid is False
+
+
+def test_audit_event_action_cannot_be_changed_without_detection():
+    event = make_event(1, GENESIS_HASH, "CASE_SAVED")
+    event["action"] = "CASE_FINALIZED"
+
+    valid, message = verify_rows([event])
+    assert valid is False
+    assert "Content hash mismatch" in message
+
+
+def test_audit_event_id_duplication_is_rejected():
+    first = make_event(1, GENESIS_HASH, "CASE_SAVED")
+    second = make_event(1, first["event_hash"], "CASE_FINALIZED")
+
+    valid, message = verify_rows([first, second])
+    assert valid is False
+    assert "not increasing" in message

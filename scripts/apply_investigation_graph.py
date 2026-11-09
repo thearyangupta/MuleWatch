@@ -268,8 +268,7 @@ graph = replace_once(
         "input_tokens": 0,""",
 )
 
-# Write only after every source anchor has passed.
 state_path.write_text(state, encoding="utf-8")
 graph_path.write_text(graph, encoding="utf-8")
 
-print("Day 4 graph and state patches applied.")
+print(" graph and state patches applied.")

@@ -26,6 +26,26 @@ PATTERNS = {
         r"\b(investigation|investigate|findings|escalation|escalate)\b",
         re.IGNORECASE | re.DOTALL,
     ),
+    "privilege_escalation": re.compile(
+        r"\b(?:you are now|act as|pretend to be|become)\b.{0,100}"
+        r"\b(?:administrator|system|developer|superuser)\b",
+        re.IGNORECASE | re.DOTALL,
+    ),
+    "prompt_disclosure": re.compile(
+        r"\b(?:reveal|show|print|disclose|expose)\b.{0,100}"
+        r"\b(?:system prompt|hidden prompt|developer prompt|internal instructions)\b",
+        re.IGNORECASE | re.DOTALL,
+    ),
+    "unsafe_clearance": re.compile(
+        r"\b(?:mark|declare|classify|label|set)\b.{0,100}"
+        r"\b(?:as safe|as legitimate|not suspicious|no risk)\b",
+        re.IGNORECASE | re.DOTALL,
+    ),
+    "decision_override": re.compile(
+        r"\b(?:override|change|replace|alter)\b.{0,100}"
+        r"\b(?:risk decision|risk assessment|final decision|case decision)\b",
+        re.IGNORECASE | re.DOTALL,
+    ),
 }
 
 
