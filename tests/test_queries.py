@@ -1,3 +1,4 @@
+import os
 from datetime import UTC, datetime
 
 import psycopg
@@ -8,11 +9,17 @@ import db.queries as queries
 
 @pytest.fixture
 def seeded_database(monkeypatch):
-    write_url = "postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch_test"
+    write_url = os.getenv(
+        "MULEWATCH_FIXTURE_DATABASE_URL",
+        "postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch_test",
+    )
 
-    read_url = (
-        "postgresql://mulewatch_readonly:"
-        "mulewatch_readonly_dev@localhost:5432/mulewatch_test"
+    read_url = os.getenv(
+        "MULEWATCH_FIXTURE_READONLY_DATABASE_URL",
+        (
+            "postgresql://mulewatch_readonly:"
+            "mulewatch_readonly_dev@localhost:5432/mulewatch_test"
+        ),
     )
 
     with psycopg.connect(write_url) as connection:

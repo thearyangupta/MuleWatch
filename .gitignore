@@ -16,3 +16,4 @@ airflow/logs
 /commands.py
 # Generated evaluation results
 /evals/results/
+/rag/fixtures/typology_corpus.json

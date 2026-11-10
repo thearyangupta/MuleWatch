@@ -1,4 +1,8 @@
-from rag.search import hybrid_search, load_embedding_model
+import os
+
+import psycopg
+
+from rag.search import DATABASE_URL, hybrid_search, load_embedding_model
 
 RETRIEVAL_CASES = [
     (
@@ -46,6 +50,43 @@ RETRIEVAL_CASES = [
 
 
 def test_retrieval_hit_rate_at_5():
+    with psycopg.connect(DATABASE_URL) as connection:
+        indexed_titles = {
+            row[0]
+            for row in connection.execute("SELECT DISTINCT title FROM typology_chunks")
+        }
+
+    expected_titles = {title for _, title in RETRIEVAL_CASES}
+
+    missing_titles = sorted(expected_titles - indexed_titles)
+
+    assert not missing_titles, (
+        "Retrieval benchmark corpus is incomplete. "
+        f"Missing source documents: {missing_titles}"
+    )
+
+    synthetic_mode = os.getenv("MULEWATCH_CI_SYNTHETIC_CORPUS") == "1"
+
+    with psycopg.connect(DATABASE_URL) as connection:
+        sources = {
+            row[0]
+            for row in connection.execute("SELECT DISTINCT source FROM typology_chunks")
+        }
+
+    synthetic_source = "MuleWatch CI Synthetic Fixture"
+
+    if synthetic_mode:
+        assert sources == {synthetic_source}, "CI must use only the synthetic fixture."
+    else:
+        assert synthetic_source not in sources, (
+            "Genuine-source benchmark must not use synthetic content."
+        )
+
+    print(
+        "\nCorpus type: "
+        + ("SYNTHETIC CI MECHANICS" if synthetic_mode else "GENUINE SOURCES")
+    )
+
     model = load_embedding_model()
 
     hits = 0

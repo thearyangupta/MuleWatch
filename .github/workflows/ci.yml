@@ -26,6 +26,8 @@ jobs:
     env:
       MULEWATCH_DATABASE_URL: postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch_test
       MULEWATCH_CHECKPOINT_DATABASE_URL: postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch_test
+      MULEWATCH_FIXTURE_DATABASE_URL: postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch_fixture_test
+      MULEWATCH_FIXTURE_READONLY_DATABASE_URL: postgresql://mulewatch_readonly:mulewatch_readonly_dev@localhost:5432/mulewatch_fixture_test
 
     steps:
       - name: Checkout repository
@@ -66,8 +68,20 @@ jobs:
           psql -v ON_ERROR_STOP=1 -h localhost -U mulewatch -d mulewatch_test -f db/review.sql
           psql -v ON_ERROR_STOP=1 -h localhost -U mulewatch -d mulewatch_test -f db/audit.sql
 
-      - name: Build typology knowledge base
-        run: python rag/ingest.py
+      - name: Prepare isolated fixture database
+        env:
+          PGPASSWORD: mulewatch_dev
+        run: |
+          psql -v ON_ERROR_STOP=1 -h localhost -U mulewatch -d postgres -c "CREATE DATABASE mulewatch_fixture_test;"
+          psql -v ON_ERROR_STOP=1 -h localhost -U mulewatch -d mulewatch_fixture_test -f db/schema.sql
+          psql -v ON_ERROR_STOP=1 -h localhost -U mulewatch -d mulewatch_fixture_test -f db/review.sql
+          psql -v ON_ERROR_STOP=1 -h localhost -U mulewatch -d mulewatch_fixture_test -c "GRANT CONNECT ON DATABASE mulewatch_fixture_test TO mulewatch_readonly;"
+          psql -v ON_ERROR_STOP=1 -h localhost -U mulewatch -d mulewatch_fixture_test -c "GRANT USAGE ON SCHEMA public TO mulewatch_readonly; GRANT SELECT ON ALL TABLES IN SCHEMA public TO mulewatch_readonly;"
+
+      - name: Build isolated synthetic CI retrieval corpus
+        env:
+          MULEWATCH_CI_SYNTHETIC_CORPUS: "1"
+        run: python -m rag.ci_fixture
 
       - name: Initialize LangGraph checkpoint tables
         env:
@@ -78,6 +92,8 @@ jobs:
         run: ruff check .
 
       - name: Run tests
+        env:
+          MULEWATCH_CI_SYNTHETIC_CORPUS: "1"
         run: pytest --ignore=tests/test_dag_integrity.py
 
       - name: Build Airflow test image

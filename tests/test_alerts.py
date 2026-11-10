@@ -1,3 +1,4 @@
+import os
 from datetime import date
 
 import psycopg
@@ -13,7 +14,10 @@ from pipeline.alerts import (
 @pytest.fixture
 def alert_database():
     connection = psycopg.connect(
-        "postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch_test"
+        os.getenv(
+            "MULEWATCH_FIXTURE_DATABASE_URL",
+            "postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch_test",
+        )
     )
 
     with connection.cursor() as cursor:

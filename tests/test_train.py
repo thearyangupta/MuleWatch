@@ -1,3 +1,4 @@
+import os
 from datetime import UTC, date, datetime
 from unittest.mock import MagicMock, patch
 
@@ -19,7 +20,10 @@ from scoring.train import (
 
 @pytest.fixture
 def training_database():
-    database_url = "postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch_test"
+    database_url = os.getenv(
+        "MULEWATCH_FIXTURE_DATABASE_URL",
+        "postgresql://mulewatch:mulewatch_dev@localhost:5432/mulewatch_test",
+    )
 
     with psycopg.connect(database_url) as connection:
         with connection.cursor() as cursor:
