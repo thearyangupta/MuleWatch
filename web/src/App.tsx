@@ -18,9 +18,9 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen md:flex">
-      <aside className="bg-slate-900 p-6 text-white md:min-h-screen md:w-64">
-        <h1 className="text-2xl font-bold">MuleWatch</h1>
+    <div className="mw-app min-h-screen md:flex">
+      <aside className="mw-sidebar p-6 text-white md:min-h-screen md:w-64">
+        <h1 className="mw-brand text-2xl font-bold">MuleWatch</h1>
         <p className="mt-1 text-xs text-slate-400">Analyst Console</p>
 
         <nav aria-label="Main navigation" className="mt-8 space-y-2">
@@ -31,8 +31,8 @@ function App() {
               className={({ isActive }) =>
                 `block rounded-lg px-4 py-3 text-sm ${
                   isActive
-                    ? 'bg-blue-600 font-semibold text-white'
-                    : 'text-slate-300 hover:bg-slate-800'
+                    ? 'mw-nav-active font-semibold text-white'
+                    : 'mw-nav-idle'
                 }`
               }
             >
@@ -42,14 +42,14 @@ function App() {
         </nav>
       </aside>
 
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center justify-end gap-3 border-b bg-white px-6 py-3 text-sm">
+      <div className="mw-workspace min-w-0 flex-1">
+        <div className="mw-topbar flex items-center justify-end gap-3 border-b px-6 py-3 text-sm">
           <span>{session.user.username} ({session.user.role})</span>
           <button type="button" onClick={logout} className="text-blue-700 underline">
             Log out
           </button>
         </div>
-        <header className="border-b border-slate-200 bg-white px-6 py-5">
+        <header className="mw-pageheader border-b px-6 py-5">
           <p className="font-semibold text-slate-900">
             MuleWatch Analyst Console
           </p>
@@ -58,7 +58,7 @@ function App() {
           </p>
         </header>
 
-        <main className="mx-auto max-w-6xl p-6">
+        <main className="mw-content mx-auto max-w-7xl p-4 md:p-7">
           <Routes>
             <Route path="/" element={<Navigate to="/queue" replace />} />
             <Route path="/queue" element={<QueuePage />} />

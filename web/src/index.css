@@ -1,23 +1,78 @@
-﻿@import "tailwindcss";
+@import "tailwindcss";
 
 :root {
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-  color: #172033;
-  background: #f5f7fb;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #e6eef9;
+  background: #0b1220;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+:focus-visible { outline: 2px solid #2dd4bf; outline-offset: 3px; }
+::selection { background: #134e4a; color: #fff; }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
+/* MuleWatch visual layer: no API or interaction logic changes. */
+.mw-app { background: #0b1220; color: #e6eef9; }
+.mw-sidebar { background: #0e192b; border-right: 1px solid #23334b; }
+.mw-brand { color: #f2fbff; letter-spacing: -.035em; }
+.mw-sidebar nav a { transition: background-color .15s, color .15s; }
+.mw-nav-active { background: #124e53; color: #a6fff1; box-shadow: inset 3px 0 #2dd4bf; }
+.mw-nav-idle { color: #a8bbd3; }
+.mw-nav-idle:hover { background: #1b2b41; color: #e6f9ff; }
+.mw-workspace { background: radial-gradient(ellipse at 100% 0%, #10283c 0%, #0b1220 42%); }
+.mw-topbar, .mw-pageheader { background: #101d30; border-color: #26374d; }
+.mw-topbar { color: #b7c8dc; }
+.mw-pageheader p:first-child { color: #edf7ff; }
+.mw-content { color: #dce8f6; }
+.mw-content h1, .mw-content h2, .mw-content h3 { color: #f2f7ff; letter-spacing: -.018em; }
+.mw-content section, .mw-content aside { min-width: 0; }
+.mw-content .bg-white { background-color: #172338; border: 1px solid #2a3c55; box-shadow: 0 8px 28px #02071224; }
+.mw-content .bg-slate-50, .mw-content .bg-slate-100 { background-color: #1e3047; }
+.mw-content .bg-slate-200 { background-color: #30435c; }
+.mw-content .text-slate-900, .mw-content .text-slate-800 { color: #edf5ff; }
+.mw-content .text-slate-700, .mw-content .text-slate-600 { color: #b9cce0; }
+.mw-content .text-slate-500, .mw-content .text-slate-400 { color: #9bafc7; }
+.mw-content .border, .mw-content .border-t, .mw-content .border-b, .mw-content .border-l-2 { border-color: #30445e; }
+.mw-content .text-blue-700, .mw-topbar .text-blue-700 { color: #5eead4; }
+.mw-content .bg-blue-700, .mw-content .bg-blue-600 { background-color: #0f766e; }
+.mw-content .bg-blue-700:hover, .mw-content .bg-blue-600:hover { background-color: #0d9488; }
+.mw-content .bg-blue-50, .mw-content .bg-blue-100 { background-color: #143b49; }
+.mw-content .text-blue-800, .mw-content .text-blue-900 { color: #99f6e4; }
+.mw-content .border-blue-200 { border-color: #216c72; }
+.mw-content .bg-red-50, .mw-content .bg-red-100 { background-color: #4b2432; }
+.mw-content .text-red-700, .mw-content .text-red-800, .mw-content .text-red-900 { color: #fecaca; }
+.mw-content .border-red-200, .mw-content .border-red-300 { border-color: #984257; }
+.mw-content .bg-amber-50, .mw-content .bg-amber-100 { background-color: #45351f; }
+.mw-content .text-amber-700, .mw-content .text-amber-800, .mw-content .text-amber-900 { color: #fde68a; }
+.mw-content .border-amber-200 { border-color: #846129; }
+.mw-content .bg-green-100 { background-color: #17463d; }
+.mw-content .text-green-700, .mw-content .text-green-900 { color: #a7f3d0; }
+.mw-content input, .mw-content select, .mw-content textarea { color: #f1f6ff; background: #101c2f; border: 1px solid #3a506c; border-radius: 9px; }
+.mw-content input::placeholder, .mw-content textarea::placeholder { color: #8ca3bf; }
+.mw-content select option { color: #f1f6ff; background: #101c2f; }
+.mw-content input[type="radio"] { accent-color: #2dd4bf; }
+.mw-content input[type="date"] { color-scheme: dark; }
+.mw-content table { border-collapse: separate; border-spacing: 0; }
+.mw-content th { background: #1b2c42; color: #a9c1d8; font-size: .72rem; letter-spacing: .055em; text-transform: uppercase; white-space: nowrap; }
+.mw-content td { color: #d9e6f4; border-bottom: 1px solid #293b53; }
+.mw-content tbody tr:hover { background: #203249; }
+.mw-content button { transition: background-color .15s, border-color .15s, color .15s; }
+.mw-content button:not(:disabled):hover { border-color: #2dd4bf; }
+.mw-content .rounded-xl { border-radius: 14px; }
+.mw-content .rounded-full { border: 1px solid currentColor; }
+.mw-content [role="alert"] { line-height: 1.55; }
+.mw-content [role="status"] { line-height: 1.5; }
+.mw-login { background: radial-gradient(circle at 50% 0%, #123a48 0%, #0b1220 50%); color: #e6eef9; }
+.mw-login-card { background: #172338; border: 1px solid #30445e; box-shadow: 0 28px 90px #0006; }
+.mw-login-card h1 { color: #f3faff; letter-spacing: -.035em; }
+.mw-login-card .text-slate-500 { color: #9fb3cc; }
+.mw-login-card input { color: #f1f6ff; background: #0f1b2e; border: 1px solid #3a506c; border-radius: 9px; }
+.mw-login-card .bg-blue-700 { background: #0f766e; }
+.mw-login-card .bg-blue-700:hover { background: #0d9488; }
+.mw-login-card .text-red-700 { color: #fca5a5; }
+@media (max-width: 767px) { .mw-sidebar { border-right: 0; border-bottom: 1px solid #23334b; } }

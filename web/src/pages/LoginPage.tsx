@@ -23,10 +23,10 @@ export function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 p-6">
+    <main className="mw-login flex min-h-screen items-center justify-center p-6">
       <form
         onSubmit={submit}
-        className="w-full max-w-md space-y-5 rounded-xl bg-white p-8 shadow-sm"
+        className="mw-login-card w-full max-w-md space-y-5 rounded-xl p-8"
       >
         <div>
           <h1 className="text-2xl font-bold">MuleWatch</h1>
