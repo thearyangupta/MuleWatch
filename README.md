@@ -169,10 +169,6 @@ MuleWatch/
 - Hash chaining is tamper-evident, not fully tamper-proof.
 - Production deployment requires additional security and compliance validation.
 
-## License
-
-License not yet specified.
-
 
 ## Current Evaluation Quality
 
