@@ -224,3 +224,97 @@ metrics remain marked unmeasured until actual results are available.
 
 The full evaluation gate checks an existing result artifact
 without making model calls. See [Evaluation Framework](docs/EVALS.md).
+
+---
+
+## Agent Evaluation
+
+### Evaluation coverage
+
+- 20 of 20 selected alerts investigated.
+- Four groups: known fraud, high risk, borderline, low risk.
+- 19 completed investigations recorded in the CSV.
+- Previously completed Alert 1 excluded from CSV averages.
+- 10 investigation reports manually reviewed.
+- Findings documented in `docs/FAILURES.md`.
+
+### Performance metrics
+
+| Metric | Result |
+|---|---:|
+| Recorded investigations | 19 |
+| Average latency | 24.61 seconds |
+| Average input tokens | 5803 |
+| Average output tokens | 139 |
+| Average steps | 3.0 |
+| Recorded estimated cost | $0.00 (unverified) |
+| Recorded tool calls | 0 (known instrumentation error) |
+
+The zero-cost metric does not establish actual Gemini billing.
+Stored traces show tool calls that the CSV does not count.
+Both metrics require reconciliation.
+
+### Complete example investigation report
+
+Alert 201, Case 13.
+
+The following report was exported from the saved case data.
+
+```json
+{
+  "summary": "Account ACC_001, belonging to a theatre manager and opened in February 2021, generated an alert with a risk score of 0.918 due to a high velocity ratio and account activity features. Over a 30-day window, the account exhibited no incoming funds but processed 650,797.24 in outgoing cash-out transactions sent entirely to counterparty account ACC_002 across two large transactions.",
+  "findings": [
+    {
+      "claim": "Account ACC_001 triggered a high risk score of 0.918 driven primarily by velocity ratio and account age features.",
+      "evidence_ids": [
+        "evidence-f5980dabcae34bb6ad6c4d0348963790"
+      ]
+    },
+    {
+      "claim": "Over a 30-day window, ACC_001 had no incoming funds and total outgoing transactions of 650,797.24 directed entirely to counterparty ACC_002 via CASH_OUT transactions.",
+      "evidence_ids": [
+        "evidence-dab6946e4bc542ddb07f16885eaa77f7"
+      ]
+    }
+  ],
+  "confidence": 0.9,
+  "risk_rating": "HIGH",
+  "open_questions": [
+    "What is the source of the funds initially deposited into ACC_001 before being cashed out to ACC_002?",
+    "What is the relationship between the owner of ACC_001 and the account holder of ACC_002?"
+  ],
+  "typology_matches": [
+    {
+      "typology": "Money Muling / Cashing Out",
+      "chunk_ids": [
+        "mulewatch_features:1:1",
+        "fca_mule_activity_cashing_out_2026:5:1"
+      ],
+      "evidence_id": "evidence-2385c043241a4c9c840f20d901051e17",
+      "explanation": "The account rapidly disbursed large sums of outgoing funds via cash-out transactions to a single counterparty with zero incoming funds recorded in the observation window, aligning with behaviors of moving and cashing out illicit proceeds."
+    }
+  ],
+  "recommended_action": "ESCALATE_TO_INVESTIGATOR"
+}
+```
+
+This is an AI-generated investigation assessment,
+not a verified determination of criminal activity.
+
+### Manual review
+
+Ten reports were reviewed for evidence grounding,
+transaction interpretation, typology reasoning,
+and recommended actions.
+
+Four quality or measurement findings and three
+additional judgment items were documented.
+
+See `docs/FAILURES.md` for details.
+
+### Agent architecture
+
+The existing README Architecture and Investigation
+Workflow sections document the LangGraph agent,
+read-only tools, RAG, validation, human review,
+and audit trail.
