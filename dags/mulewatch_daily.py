@@ -62,7 +62,7 @@ def mulewatch_daily():
         return build_features_for_date(run_date)
 
     @task(
-        execution_timeout=timedelta(minutes=10),
+        execution_timeout=timedelta(minutes=60),
         retries=3,
         retry_delay=timedelta(seconds=30),
         retry_exponential_backoff=True,
