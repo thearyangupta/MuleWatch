@@ -7,6 +7,9 @@ export function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [theme, setTheme] = useState<'dark' | 'light'>(
+    () => (localStorage.getItem('mulewatch-theme') === 'light' ? 'light' : 'dark'),
+  )
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -23,10 +26,26 @@ export function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[radial-gradient(circle_at_top,_rgba(20,184,166,0.18),_transparent_30%),linear-gradient(180deg,#020817_0%,#0b1220_100%)] p-6">
+    <main
+      className="mw-login flex min-h-screen items-center justify-center p-6"
+      data-theme={theme}
+    >
+      <button
+        type="button"
+        aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+        onClick={() => {
+          const next = theme === 'dark' ? 'light' : 'dark'
+          setTheme(next)
+          localStorage.setItem('mulewatch-theme', next)
+        }}
+        className="theme-toggle fixed right-5 top-5"
+      >
+        <span aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span>
+        <span>{theme === 'dark' ? 'Light' : 'Dark'}</span>
+      </button>
       <form
         onSubmit={submit}
-        className="w-full max-w-md rounded-3xl border border-slate-700 bg-slate-900/80 p-8 shadow-[0_24px_80px_rgba(2,6,23,0.7)] backdrop-blur-sm"
+        className="mw-login-card w-full max-w-md rounded-3xl border p-8"
       >
         <div className="mb-6 flex items-center gap-3">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-500/15 text-xl font-bold text-teal-200 ring-1 ring-teal-400/30">

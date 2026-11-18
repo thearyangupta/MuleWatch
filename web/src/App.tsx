@@ -4,6 +4,7 @@ import { CasePage } from './pages/CasePage'
 import { NavLink, Navigate, Route, Routes } from 'react-router'
 import { QueuePage } from './pages/QueuePage'
 import { OpsPage } from './pages/OpsPage'
+import { useEffect, useState } from 'react'
 
 const navigation = [
   { to: '/queue', label: 'Queue' },
@@ -12,13 +13,20 @@ const navigation = [
 
 function App() {
   const { session, logout } = useAuth()
+  const [theme, setTheme] = useState<'dark' | 'light'>(
+    () => (localStorage.getItem('mulewatch-theme') === 'light' ? 'light' : 'dark'),
+  )
+
+  useEffect(() => {
+    localStorage.setItem('mulewatch-theme', theme)
+  }, [theme])
 
   if (!session) {
     return <LoginPage />
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 md:flex">
+    <div className="mw-app min-h-screen md:flex" data-theme={theme}>
       <aside className="border-b border-slate-800 bg-slate-950/90 p-6 md:min-h-screen md:w-72 md:border-b-0 md:border-r">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500/15 text-lg font-bold text-teal-200 ring-1 ring-teal-400/30">
@@ -55,6 +63,16 @@ function App() {
         <div className="flex items-center justify-between gap-3 border-b border-slate-800 bg-slate-950/60 px-6 py-3 text-sm text-slate-300 backdrop-blur-sm">
           <div className="hidden text-xs uppercase tracking-[0.2em] text-slate-500 sm:block">Investigation workspace</div>
           <div className="ml-auto flex items-center gap-3">
+            <button
+              type="button"
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="theme-toggle"
+            >
+              <span aria-hidden="true">{theme === 'dark' ? '☀' : '☾'}</span>
+              <span className="hidden sm:inline">{theme === 'dark' ? 'Light' : 'Dark'}</span>
+            </button>
             <span className="rounded-full border border-slate-700 bg-slate-900/60 px-2.5 py-1 text-slate-200">
               {session.user.username} <span className="text-slate-400">({session.user.role})</span>
             </span>
