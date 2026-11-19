@@ -19,6 +19,8 @@ function App() {
 
   useEffect(() => {
     localStorage.setItem('mulewatch-theme', theme)
+    document.documentElement.dataset.theme = theme
+    document.body.style.backgroundColor = theme === 'light' ? '#f4f7fb' : '#020817'
   }, [theme])
 
   if (!session) {
@@ -27,7 +29,7 @@ function App() {
 
   return (
     <div className="mw-app min-h-screen md:flex" data-theme={theme}>
-      <aside className="border-b border-slate-800 bg-slate-950/90 p-6 md:min-h-screen md:w-72 md:border-b-0 md:border-r">
+      <aside className="mw-sidebar border-b border-slate-800 bg-slate-950/90 p-6 md:min-h-screen md:w-72 md:border-b-0 md:border-r">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-500/15 text-lg font-bold text-teal-200 ring-1 ring-teal-400/30">
             M
@@ -59,8 +61,8 @@ function App() {
         </nav>
       </aside>
 
-      <div className="min-w-0 flex-1 bg-[radial-gradient(circle_at_top,_rgba(20,184,166,0.15),_transparent_35%),linear-gradient(180deg,#020817_0%,#0b1220_100%)]">
-        <div className="flex items-center justify-between gap-3 border-b border-slate-800 bg-slate-950/60 px-6 py-3 text-sm text-slate-300 backdrop-blur-sm">
+      <div className="mw-workspace min-w-0 flex-1 bg-[radial-gradient(circle_at_top,_rgba(20,184,166,0.15),_transparent_35%),linear-gradient(180deg,#020817_0%,#0b1220_100%)]">
+        <div className="mw-topbar flex items-center justify-between gap-3 border-b border-slate-800 bg-slate-950/60 px-6 py-3 text-sm text-slate-300 backdrop-blur-sm">
           <div className="hidden text-xs uppercase tracking-[0.2em] text-slate-500 sm:block">Investigation workspace</div>
           <div className="ml-auto flex items-center gap-3">
             <button
@@ -82,13 +84,13 @@ function App() {
           </div>
         </div>
 
-        <header className="border-b border-slate-800 px-6 py-5">
+        <header className="mw-pageheader border-b border-slate-800 px-6 py-5">
           <p className="text-xs uppercase tracking-[0.18em] text-teal-300/90">Monitoring</p>
           <p className="mt-2 text-2xl font-semibold text-white">MuleWatch Analyst Console</p>
           <p className="mt-1 text-sm text-slate-400">Investigation and review workspace</p>
         </header>
 
-        <main className="mx-auto max-w-7xl p-4 md:p-7">
+        <main className="mw-content mx-auto max-w-7xl p-4 md:p-7">
           <Routes>
             <Route path="/" element={<Navigate to="/queue" replace />} />
             <Route path="/queue" element={<QueuePage />} />

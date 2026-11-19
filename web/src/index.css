@@ -152,6 +152,11 @@ button:disabled {
   --light-accent-soft: #e0f2fe;
 }
 
+html[data-theme="light"],
+body[data-theme="light"] {
+  background: #f4f7fb;
+}
+
 .mw-app[data-theme="light"] {
   background: var(--light-bg) !important;
   color: var(--light-text) !important;
@@ -328,6 +333,40 @@ button:disabled {
 .mw-login[data-theme="light"] .bg-teal-500 {
   background: #0284c7 !important;
   color: #ffffff !important;
+}
+
+.mw-app[data-theme="light"] .mw-content .bg-white {
+  background-color: #ffffff !important;
+  border-color: #dbe4ef !important;
+  color: #172033 !important;
+  box-shadow: 0 8px 28px rgba(51, 65, 85, 0.08) !important;
+}
+
+.mw-app[data-theme="light"] .mw-content .bg-slate-950\/40,
+.mw-app[data-theme="light"] .mw-content .bg-slate-950\/30,
+.mw-app[data-theme="light"] .mw-content .bg-slate-950\/80 {
+  background-color: #f8fafc !important;
+}
+
+.mw-app[data-theme="light"] .mw-content .bg-slate-700,
+.mw-app[data-theme="light"] .mw-content .bg-slate-800\/60 {
+  background-color: #edf3f8 !important;
+}
+
+.mw-app[data-theme="light"] .mw-content .border-slate-200,
+.mw-app[data-theme="light"] .mw-content .border-slate-700\/80,
+.mw-app[data-theme="light"] .mw-content .border-dashed {
+  border-color: #dbe4ef !important;
+}
+
+.mw-app[data-theme="light"] .mw-content .text-green-700 {
+  color: #047857 !important;
+}
+
+.mw-app[data-theme="light"] .mw-content .bg-red-50,
+.mw-app[data-theme="light"] .mw-content .bg-red-500\/10,
+.mw-app[data-theme="light"] .mw-content .bg-amber-500\/15 {
+  border-color: #e2e8f0 !important;
 }
 
 @media (max-width: 768px) {

@@ -1,4 +1,4 @@
-﻿import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { useAuth } from '../auth'
 
 export function LoginPage() {
@@ -10,6 +10,11 @@ export function LoginPage() {
   const [theme, setTheme] = useState<'dark' | 'light'>(
     () => (localStorage.getItem('mulewatch-theme') === 'light' ? 'light' : 'dark'),
   )
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    document.body.style.backgroundColor = theme === 'light' ? '#f4f7fb' : '#020817'
+  }, [theme])
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
