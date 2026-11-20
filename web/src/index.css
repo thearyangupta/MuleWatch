@@ -284,6 +284,31 @@ body[data-theme="light"] {
   color: #0369a1 !important;
 }
 
+.mw-app[data-theme="light"] .text-red-50,
+.mw-app[data-theme="light"] .text-red-100,
+.mw-app[data-theme="light"] .text-red-700,
+.mw-app[data-theme="light"] .text-red-800,
+.mw-app[data-theme="light"] .text-rose-200,
+.mw-app[data-theme="light"] .text-amber-100,
+.mw-app[data-theme="light"] .text-amber-200,
+.mw-login[data-theme="light"] .text-red-100,
+.mw-login[data-theme="light"] .text-red-700 {
+  color: #9f1239 !important;
+}
+
+.mw-app[data-theme="light"] .text-emerald-200,
+.mw-app[data-theme="light"] .text-green-100,
+.mw-app[data-theme="light"] .text-green-700,
+.mw-app[data-theme="light"] .text-green-900 {
+  color: #047857 !important;
+}
+
+.mw-app[data-theme="light"] .text-amber-700,
+.mw-app[data-theme="light"] .text-amber-800,
+.mw-app[data-theme="light"] .text-amber-900 {
+  color: #92400e !important;
+}
+
 .mw-app[data-theme="light"] .bg-teal-500,
 .mw-app[data-theme="light"] .bg-teal-500\/15 {
   background-color: #e0f2fe !important;
